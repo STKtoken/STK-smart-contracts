@@ -4,29 +4,27 @@ import "./Token.sol";
 
 contract STKChannel
 {
-
-  // A struct for the channel parameters
-  // The address of the user
   Token token;
+  // The address of the user
   address userAddress;
   // The address of STK
   address receipientAddress;
-  //address of the deployed STK token address, this could be hardcoded once STK ERC20 Token
+  //address of the deployed STK token address, this could be hardcoded once STK ERC20 Token.
   uint timeout;
+  // total amount deposited into channel.
   uint balance;
+  // Amount owed to STK
   uint amountOwed;
 
-  //opened
   uint openedBlock;
-  // closed block
   uint closedBlock;
   uint closedNonce;
 
   address closingAddress;
 
   //Events
-  event channelOpened(address from , address to , uint blockNumber);
-  event channelClosed(uint blockNumber , address closer , uint amount);
+  event channelOpened(address from, address to, uint blockNumber);
+  event channelClosed(uint blockNumber, address closer, uint amount);
   event deposited(address depositingAddress, uint amount);
   event channelSettled(uint blockNumber, uint finalBalance);
   event channelContested(uint amount, address caller);
@@ -40,7 +38,6 @@ contract STKChannel
   {
     require(closedBlock + timeout >= block.number);
     _;
-
   }
   modifier timeoutOver()
   {
@@ -48,8 +45,8 @@ contract STKChannel
     _;
   }
   function STKChannel(
-    address to ,
-    address addressOfToken ,
+    address to,
+    address addressOfToken,
     uint expiryTime )
     public
   {  // should we require that both addresses be EOA?
@@ -64,7 +61,7 @@ contract STKChannel
   }
 
 // Deposit into the state channel
-  function deposit(uint256 amount )
+  function deposit(uint256 amount)
   public
   returns (bool success, uint256 NewBalance )
   {
@@ -73,8 +70,8 @@ contract STKChannel
     require(closedBlock == 0 );
     require(openedBlock > 0);
 
-    require(token.balanceOf(msg.sender) >= amount  );
-    success = token.transferFrom(msg.sender , this , amount );
+    require(token.balanceOf(msg.sender) >= amount);
+    success = token.transferFrom(msg.sender, this, amount);
     if(success == true )
     {
       balance += amount;
@@ -85,9 +82,9 @@ contract STKChannel
   }
 // Close the channel
   function close(uint nonce,
-    uint amount ,
-    bytes32 sig ,
-    uint8 v ,
+    uint amount,
+    bytes32 sig,
+    uint8 v,
     bytes32 r,
     bytes32 s)
   public
@@ -104,10 +101,10 @@ contract STKChannel
       require( sig == proof );
       require(amount <= balance);
 
-      amountOwed = amount ;
-      closedNonce = nonce ;
+      amountOwed = amount;
+      closedNonce = nonce;
       closedBlock = block.number;
-      closingAddress = msg.sender ;
+      closingAddress = msg.sender;
 
       channelClosed(block.number,msg.sender,amount);
   }
@@ -116,7 +113,7 @@ contract STKChannel
   channelAlreadyClosed()
   public
   {
-    require( msg.sender == receipientAddress || msg.sender == userAddress);
+    require(msg.sender == receipientAddress || msg.sender == userAddress);
     // closer cannot update the state of the channel after closing
     require(msg.sender != closingAddress);
     address signerAddress = ecrecover(sig, v,r,s);
@@ -125,10 +122,10 @@ contract STKChannel
     require(sig==proof);
     // require that the nonce of this transaction be higher than the previous closing nonce
     require(nonce > closedNonce);
-    closedNonce = nonce ;
+    closedNonce = nonce;
     //update the amount
-    amountOwed = amount ;
-    channelContested(amount,msg.sender) ;
+    amountOwed = amount;
+    channelContested(amount,msg.sender);
   }
   function settle()
   channelAlreadyClosed()
