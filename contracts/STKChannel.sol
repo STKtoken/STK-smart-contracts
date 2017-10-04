@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 import "./Token.sol";
-
+import "./SafeMathLib.sol";
 contract STKChannel
 {
   Token token;
@@ -11,7 +11,7 @@ contract STKChannel
   address receipientAddress;
   //address of the deployed STK token address, this could be hardcoded once STK ERC20 Token.
   uint timeout;
-  // total amount deposited into channel.
+  // total amount LogDeposited into channel.
   uint balance;
   // Amount owed to STK
   uint amountOwed;
@@ -23,11 +23,11 @@ contract STKChannel
   address closingAddress;
 
   //Events
-  event channelOpened(address from, address to, uint blockNumber);
-  event channelClosed(uint blockNumber, address closer, uint amount);
-  event deposited(address depositingAddress, uint amount);
-  event channelSettled(uint blockNumber, uint finalBalance);
-  event channelContested(uint amount, address caller);
+  event LogChannelOpened(address from, address to, uint blockNumber);
+  event LogChannelClosed(uint blockNumber, address closer, uint amount);
+  event LogDeposited(address depositingAddress, uint amount);
+  event LogChannelSettled(uint blockNumber, uint finalBalance);
+  event LogChannelContested(uint amount, address caller);
 
   modifier channelAlreadyClosed()
   {
@@ -41,7 +41,13 @@ contract STKChannel
   }
   modifier timeoutOver()
   {
-    require(closedBlock + timeout <= block.number);
+    require(closedBlock + timeout < block.number);
+    _;
+  }
+  modifier channelIsOpen()
+  {
+    require(closedBlock == 0 );
+    require(openedBlock > 0);
     _;
   }
   function STKChannel(
@@ -57,25 +63,26 @@ contract STKChannel
       timeout = expiryTime;
       token  = Token(addressOfToken);
       openedBlock = block.number;
-      channelOpened(userAddress,receipientAddress,openedBlock);
+      LogChannelOpened(userAddress,receipientAddress,openedBlock);
   }
 
 // Deposit into the state channel
   function deposit(uint256 amount)
-  public
-  returns (bool success, uint256 NewBalance )
+  public channelIsOpen()
+  returns (bool,uint256)
   {
     // only user can deposit into account
     require(msg.sender == userAddress);
-    require(closedBlock == 0 );
-    require(openedBlock > 0);
+    require(amount>0);
 
     require(token.balanceOf(msg.sender) >= amount);
-    success = token.transferFrom(msg.sender, this, amount);
+    require(token.allowance(msg.sender,this)>=amount);
+    var success = token.transferFrom(msg.sender, this, amount);
     if(success == true )
     {
-      balance += amount;
-      deposited(msg.sender,amount);
+
+      balance = SafeMathLib.plus(balance,amount) ;
+      LogDeposited(msg.sender,amount);
       return (true,balance);
     }
     return (false, 0 );
@@ -106,26 +113,26 @@ contract STKChannel
       closedBlock = block.number;
       closingAddress = msg.sender;
 
-      channelClosed(block.number,msg.sender,amount);
+      LogChannelClosed(block.number,msg.sender,amount);
   }
 
-  function updateClosedChannel(uint nonce , uint amount ,bytes32 sig , uint8 v , bytes32 r, bytes32 s )
+  function updateClosedChannel(uint nonce , uint amount ,bytes32 msgHash , uint8 v , bytes32 r, bytes32 s )
   channelAlreadyClosed()
   public
   {
     require(msg.sender == receipientAddress || msg.sender == userAddress);
     // closer cannot update the state of the channel after closing
     require(msg.sender != closingAddress);
-    address signerAddress = ecrecover(sig, v,r,s);
+    address signerAddress = ecrecover(msgHash, v,r,s);
     require(signerAddress == closingAddress);
     bytes32 proof  = sha3(this,nonce,amount);
-    require(sig==proof);
+    require(msgHash==proof);
     // require that the nonce of this transaction be higher than the previous closing nonce
     require(nonce > closedNonce);
     closedNonce = nonce;
     //update the amount
     amountOwed = amount;
-    channelContested(amount,msg.sender);
+    LogChannelContested(amount,msg.sender);
   }
   function settle()
   channelAlreadyClosed()
@@ -133,7 +140,7 @@ contract STKChannel
   public
   {
     require(balance >= amountOwed);
-    uint returnToUserAmount = balance - amountOwed;
+    uint returnToUserAmount = SafeMathLib.minus(balance,amountOwed);
     if(amountOwed > 0 )
     {
       require(token.transfer(receipientAddress,amountOwed));
@@ -142,7 +149,7 @@ contract STKChannel
     {
       require(token.transfer(userAddress,returnToUserAmount));
     }
-    channelSettled(block.number, amountOwed);
+    LogChannelSettled(block.number, amountOwed);
     //destroy the payment channel
     selfdestruct(0x00000000000000000000);
   }

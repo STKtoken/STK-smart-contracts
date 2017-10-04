@@ -1,0 +1,75 @@
+{
+  "contract_name": "SafeMathLib",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "uint256"
+        },
+        {
+          "name": "b",
+          "type": "uint256"
+        }
+      ],
+      "name": "times",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "uint256"
+        },
+        {
+          "name": "b",
+          "type": "uint256"
+        }
+      ],
+      "name": "plus",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "uint256"
+        },
+        {
+          "name": "b",
+          "type": "uint256"
+        }
+      ],
+      "name": "minus",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "unlinked_binary": "0x6060604052341561000f57600080fd5b5b61013f8061001f6000396000f300606060405263ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416631d3b9edf811461005357806366098d4f14610073578063f4f3bdc114610093575b600080fd5b6100616004356024356100b3565b60405190815260200160405180910390f35b6100616004356024356100e2565b60405190815260200160405180910390f35b6100616004356024356100fc565b60405190815260200160405180910390f35b60008282028315806100cf57508284828115156100cc57fe5b04145b15156100d757fe5b8091505b5092915050565b6000828201838110156100d757fe5b8091505b5092915050565b60008282111561010857fe5b508082035b929150505600a165627a7a72305820eaa01d7cc80f12beaf875183be0d08b37a53f8f7195e90ee2fb13c7bbdae2f200029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1507153396551
+}
