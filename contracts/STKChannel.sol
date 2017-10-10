@@ -1,19 +1,22 @@
 pragma solidity ^0.4.11;
+
+import "./Token.sol";
+import "./SafeMathLib.sol";
+
 /**
 Payment Channel between two parties that allows multiple deposits.
 Once closed, there is a contest period which allows state updates.
 */
-import "./Token.sol";
-import "./SafeMathLib.sol";
-
-
 contract STKChannel
 {
   using SafeMathLib for uint ;
+  /**
+   * Storage variables
+   */
   Token public token_;
   address public  userAddress_;
   address public receipientAddress_;
-  uint public  timout_;
+  uint public  timeout_;
   uint public tokenBalance_;
   uint public  amountOwed_;
   uint public openedBlock_;
@@ -35,13 +38,13 @@ contract STKChannel
 
   modifier timeoutNotOver()
   {
-    require(closedBlock_ + timout_ >= block.number);
+    require(closedBlock_ + timeout_ >= block.number);
     _;
   }
 
   modifier timeoutOver()
   {
-    require(closedBlock_ + timout_ < block.number);
+    require(closedBlock_ + timeout_ < block.number);
     _;
   }
 
@@ -58,6 +61,12 @@ contract STKChannel
     _;
   }
 
+  /**
+   * @dev Contract constructor
+   * @param _to The receiving address in the contract.
+   * @param _addressOfToken The address when the ERC20 token is deployed
+   * @param _expiryTime The time in blocks of waiting after channel closing after which it can be settled.
+   */
   function STKChannel(
     address _to,
     address _addressOfToken,
@@ -67,15 +76,15 @@ contract STKChannel
       require(_to != msg.sender);
       userAddress_ = msg.sender;
       receipientAddress_ = _to;
-      timout_ = _expiryTime;
+      timeout_ = _expiryTime;
       token_ = Token(_addressOfToken);
       openedBlock_ = block.number;
       LogChannelOpened(userAddress_,receipientAddress_,openedBlock_);
   }
 
   /**
-  Function to deposit an amount of tokens.
-  Assumes that the amount has already been approved for transfer to this address, else it will fail
+  * @notice deposit _amount into the channel.
+  * @param _amount The amount of tokens to deposit into the channel.
   */
   function deposit(uint256 _amount)
     external
@@ -98,7 +107,10 @@ contract STKChannel
   }
 
   /**
-  Function to close the payment channel. If Signature is empty/malformed it WILL still close the channel.
+  * @notice Function to close the payment channel. If Signature is empty/malformed it WILL still close the channel.
+  * @param _nonce The nonce of the deposit. Used for avoiding replay attacks.
+  * @param _amount The amount of tokens claimed to be due to the receiver.
+  * @param _signature The signed amount and nonce, It is in the form of keccak256(this,nonce,address).
   */
   function close(uint _nonce,
     uint _amount,
@@ -125,8 +137,12 @@ contract STKChannel
   }
 
   /**
-  Function to contest the closing state of  the payment channel.
-  Will be able to be called for a time period (in blocks) given by timeout after closing of the channel.
+  * @notice   Function to contest the closing state of  the payment channel. Will be able to be called for a time period (in blocks) given by timeout after closing of the channel.
+  * @param _nonce The nonce of the deposit. Used for avoiding replay attacks.
+  * @param _amount The amount of tokens claimed to be due to the receiver.
+  * @param _v Cryptographic param v derived from the signature.
+  * @param _r Cryptographic param r derived from the signature.
+  * @param _s Cryptographic param s derived from the signature.
   */
   function updateClosedChannel(uint _nonce,
     uint _amount,
@@ -150,7 +166,7 @@ contract STKChannel
   }
 
   /**
-  After the timeout of the channel after closing has passed, can be called by either participant to withdraw funds.
+  * @notice After the timeout of the channel after closing has passed, can be called by either participant to withdraw funds.
   */
   function settle()
     external
@@ -173,6 +189,12 @@ contract STKChannel
     selfdestruct(address(0));
   }
 
+  /**
+  * @notice Internal function to recover the signing address of a signature
+  * @param _nonce The nonce of the new transaction in the contest, must be higher than the previously claimed nonce
+  * @param _amount The amount of tokens claimed to be transferred.
+  * @param _signature The signed transaction.
+  */
   function recoverAddressFromSignature(
        uint _nonce,
        uint _amount,
@@ -189,6 +211,10 @@ contract STKChannel
        return ecrecover(signed_hash, v, r, s);
    }
 
+   /**
+   * @notice Internal function to split a signature into the component (r,s,v).
+   * @param _signature The signed transaction.
+   */
    function signatureSplit(bytes _signature)
         internal
         returns (bytes32 r, bytes32 s, uint8 v)

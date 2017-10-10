@@ -9,17 +9,17 @@ contract("STKChannel", function(accounts,done){
     //To , token Address , expiry time
     STKChannel.new(accounts[1], instance.address, 50);
   });
-  console.log(accounts[0]);
 
   it("STK Channel is deployed ", function()
   {
     return STKChannel.deployed().then(done).catch(done);
   });
+
   it("STK Channel user acccount is first account", function()
   {
       return STKChannel.deployed().then(function(instance)
     {
-       return instance.userAddress.call().then(function(address){
+       return instance.userAddress_.call().then(function(address){
          assert.equal(address.toString(),accounts[0],'accounts are not equal');
        });
     });
@@ -29,7 +29,7 @@ contract("STKChannel", function(accounts,done){
   {
     return STKChannel.deployed().then(function(instance)
   {
-     return instance.receipientAddress.call().then(function(address){
+     return instance.receipientAddress_.call().then(function(address){
        assert.equal(address.toString(),accounts[1],'accounts are not equal');
 
      });
@@ -40,8 +40,8 @@ contract("STKChannel", function(accounts,done){
 {
     return STKChannel.deployed().then(function(instance)
   {
-     return instance.timeout.call().then(function(timeout){
-       assert.equal(timeout.valueOf(),50,'values are not equal');
+     return instance.timeout_.call().then(function(timeout_){
+       assert.equal(timeout_.valueOf(),50,'values are not equal');
      });
   });
 });
