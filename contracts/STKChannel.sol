@@ -9,7 +9,7 @@ Once closed, there is a contest period which allows state updates.
 */
 contract STKChannel
 {
-  using SafeMathLib for uint ;
+  using SafeMathLib for uint;
   /**
    * Storage variables
    */
@@ -199,7 +199,7 @@ contract STKChannel
        uint _nonce,
        uint _amount,
        bytes _signature
-     )
+    )
        constant
        internal
        returns (address)
