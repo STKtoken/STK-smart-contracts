@@ -4,11 +4,13 @@ var HumanStandardToken = artifacts.require('./HumanStandardToken.sol');
 
 contract("STKChannel", function(accounts,done){
   // Deploy a stack channel before running tests
-//  HumanStandardToken.deployed().then( function(instance)
-//  {
+  HumanStandardToken.deployed().then( function(instance)
+  {
     //To , token Address , expiry time
-//    STKChannel.new(accounts[1], instance.address, 50);
-//  });
+    STKChannel.new(accounts[1], instance.address, 50);
+  });
+  console.log(accounts[0]);
+
   it("STK Channel is deployed ", function()
   {
     return STKChannel.deployed().then(done).catch(done);
