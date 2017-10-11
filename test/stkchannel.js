@@ -40,17 +40,6 @@ contract("STKChannel", function(accounts,done){
 	});
 });
 
-	it('STK Channel expiry time is 50',function()
-	{
-		return STKChannel.deployed().then(function(instance)
-		{
-		 return instance.timeout_.call().then(function(timeout_)
-		 {
-			 assert.equal(timeout_.valueOf(),50,'values are not equal');
-		 });
-	 });
-});
-
 	it('Deposit 50 tokens to the stkchannel',function()
 	{
 		return HumanStandardToken.deployed().then(function(token)
