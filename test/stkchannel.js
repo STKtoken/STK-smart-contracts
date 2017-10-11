@@ -1,4 +1,4 @@
-var STKChannel  = artifacts.require('./STKChannel.sol');
+var STKChannel = artifacts.require('./STKChannel.sol');
 var HumanStandardToken = artifacts.require('./HumanStandardToken.sol');
 
 
@@ -36,7 +36,7 @@ contract("STKChannel", function(accounts,done){
   });
   });
 
-  it('STK Channel  expiry time  is 50',function()
+  it('STK Channel expiry time is 50',function()
 {
     return STKChannel.deployed().then(function(instance)
   {
@@ -45,4 +45,5 @@ contract("STKChannel", function(accounts,done){
      });
   });
 });
+
 });

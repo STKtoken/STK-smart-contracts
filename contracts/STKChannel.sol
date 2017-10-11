@@ -14,15 +14,15 @@ contract STKChannel
    * Storage variables
    */
   Token public token_;
-  address public  userAddress_;
+  address public userAddress_;
   address public receipientAddress_;
-  uint public  timeout_;
+  uint public timeout_;
   uint public tokenBalance_;
-  uint public  amountOwed_;
+  uint public amountOwed_;
   uint public openedBlock_;
   uint public closedBlock_;
   uint public closedNonce_;
-  address public  closingAddress_;
+  address public closingAddress_;
 
   event LogChannelOpened(address from, address to, uint blockNumber);
   event LogChannelClosed(uint blockNumber, address closer, uint amount);
@@ -64,7 +64,7 @@ contract STKChannel
   /**
    * @dev Contract constructor
    * @param _to The receiving address in the contract.
-   * @param _addressOfToken The address when the ERC20 token is deployed
+   * @param _addressOfToken The address when the ERC20 token is deployed.
    * @param _expiryTime The time in blocks of waiting after channel closing after which it can be settled.
    */
   function STKChannel(
@@ -137,7 +137,7 @@ contract STKChannel
   }
 
   /**
-  * @notice   Function to contest the closing state of  the payment channel. Will be able to be called for a time period (in blocks) given by timeout after closing of the channel.
+  * @notice Function to contest the closing state of the payment channel. Will be able to be called for a time period (in blocks) given by timeout after closing of the channel.
   * @param _nonce The nonce of the deposit. Used for avoiding replay attacks.
   * @param _amount The amount of tokens claimed to be due to the receiver.
   * @param _v Cryptographic param v derived from the signature.
@@ -190,8 +190,8 @@ contract STKChannel
   }
 
   /**
-  * @notice Internal function to recover the signing address of a signature
-  * @param _nonce The nonce of the new transaction in the contest, must be higher than the previously claimed nonce
+  * @notice Internal function to recover the signing address of a signature.
+  * @param _nonce The nonce of the new transaction in the contest, must be higher than the previously claimed nonce.
   * @param _amount The amount of tokens claimed to be transferred.
   * @param _signature The signed transaction.
   */
@@ -220,7 +220,7 @@ contract STKChannel
         returns (bytes32 r, bytes32 s, uint8 v)
     {
         // The signature format is a compact form of:
-        //   {bytes32 r}{bytes32 s}{uint8 v}
+        // {bytes32 r}{bytes32 s}{uint8 v}
         // Compact means, uint8 is not padded to 32 bytes.
         assembly {
             r := mload(add(_signature, 32))
