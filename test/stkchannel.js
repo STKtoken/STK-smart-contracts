@@ -1,8 +1,9 @@
+
 var STKChannel = artifacts.require('./STKChannel.sol');
 var HumanStandardToken = artifacts.require('./HumanStandardToken.sol');
-
-
-contract("STKChannel", function(accounts,done){
+var sha3 = require('solidity-sha3').default;
+contract("STKChannel", function(accounts,done)
+{
 
 	it("STK Channel is deployed ", function()
 	{
@@ -31,31 +32,65 @@ contract("STKChannel", function(accounts,done){
 	});
 
 	it('STK Channel expiry time is 50',function()
-{
-		return STKChannel.deployed().then(function(instance)
 	{
-		 return instance.timeout_.call().then(function(timeout_){
-			 assert.equal(timeout_.valueOf(),50,'values are not equal');
-		 });
+		return STKChannel.deployed().then(function(instance)
+		{
+			return instance.timeout_.call().then(function(timeout_)
+			{
+				assert.equal(timeout_.valueOf(),50,'values are not equal');
+			});
+		});
 	});
-});
 
 	it('Deposit 50 tokens to the stkchannel',function()
 	{
 		return HumanStandardToken.deployed().then(function(token)
 		{
-				return STKChannel.deployed().then(function(channel)
+			return STKChannel.deployed().then(function(channel)
+			{
+				return token.approve(channel.address,50).then(function()
 				{
-					return token.approve(channel.address,50).then(function()
+					return token.allowance(accounts[0],channel.address).then(function(allowance)
 					{
-						return token.allowance(accounts[0],channel.address).then(function(allowance)
-						{
-							assert.equal(allowance.valueOf(),50, 'The deposited amount of tokens is 50 ');
-
+						return channel.deposit(50).then(function()
+							{
+								return channel.tokenBalance_.call().then(function(balance)
+								{
+									assert.equal(balance.valueOf(),50,'the deposited values are not equal');
+								});
+							});
 						});
 					});
 				});
 			});
-	});
+		});
+
+		it('Close the channel without a  signature',function()
+		{
+			return STKChannel.deployed().then(function(channel)
+			{
+				return channel.close(0,0,0).then(function()
+				{
+					return channel.closedBlock_.call().then(function(block)
+					{
+						assert.isAbove(block.valueOf(),0,'closed block is not greater than zero');
+					});
+				});
+			});
+		});
+
+		it('Basic sh3 test',function()
+		{
+				var nonce = 1;
+				var amount = 50;
+				var address = STKChannel.address;
+				var sig = sha3(address,nonce,amount);
+				return STKChannel.deployed().then(function(channel)
+				{
+				 	assert.equal(sig,sha3(channel.address,nonce,amount),'the sigs are not equal');
+				});
+		});
+
+
 
 });

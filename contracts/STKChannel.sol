@@ -95,11 +95,11 @@ contract STKChannel
     require(msg.sender == userAddress_);
     require(_amount>0);
     require(token_.balanceOf(msg.sender) >= _amount);
-    require(token_.allowance(msg.sender,this)>=_amount);
+    require(token_.allowance(msg.sender,this) >= _amount);
     var success = token_.transferFrom(msg.sender,this,_amount);
     if(success == true)
     {
-      tokenBalance_ = tokenBalance_.times(_amount);
+      tokenBalance_ = tokenBalance_.plus(_amount);
       LogDeposited(msg.sender,_amount);
       return (true,tokenBalance_);
     }
