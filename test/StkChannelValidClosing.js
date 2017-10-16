@@ -1,34 +1,27 @@
-var STKChannel = artifacts.require('./STKChannel.sol');
-var HumanStandardToken = artifacts.require('./HumanStandardToken.sol');
-var sha3 = require('solidity-sha3').default;
+const STKChannel = artifacts.require('./STKChannel.sol')
+const HumanStandardToken = artifacts.require('./HumanStandardToken.sol')
+const sha3 = require('solidity-sha3').default
 
 
-contract("STKChannelClosing", function(accounts,done)
-{
-  var userAddress = accounts[0];
-  var stackAddress = accounts[1];
+contract("STKChannelClosing", accounts => {
+  const userAddress = accounts[0]
+  const stackAddress = accounts[1]
 
-  it('user closes the channel with a valid signature',function()
-  {
-      var nonce = 1;
-      var amount = 50;
-      var transaction = {from :userAddress};
-      var address = STKChannel.address;
-      var hash = sha3(address,nonce,amount);
-      var signature = web3.eth.sign(web3.eth.accounts[1],hash);
-      return STKChannel.deployed().then(function(channel)
-      {
-        return channel.close(nonce,amount,signature).then(function()
-        {
-          return channel.closedBlock_.call().then(function(block)
-          {
-            assert.isAbove(block.valueOf(),0,'The closed block should not be zero or below');
-            return channel.closingAddress_.call(function(address)
-            {
-              assert.equal(address,userAddress,'the closing address and userAddress should match');
-            });
-          });
-        });
-      });
+  it('user closes the channel with a valid signature', async () => {
+      const nonce = 1
+      const amount = 50
+      const transaction = { from: userAddress }
+      const address = STKChannel.address
+      const hash = sha3(address,nonce,amount)
+      const signature = web3.eth.sign(web3.eth.accounts[1],hash)
+
+      const channel = await STKChannel.deployed()
+      await channel.close(nonce,amount,signature)
+      const block = await channel.closedBlock_.call()
+
+      assert.isAbove(block.valueOf(),0,'The closed block should not be zero or below')
+
+      const addr = await channel.closingAddress_.call()
+      assert.equal(address,userAddress,'the closing address and userAddress should match')
   })
-});
+})

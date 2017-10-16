@@ -30,6 +30,8 @@ contract STKChannel
   event LogChannelSettled(uint blockNumber, uint finalBalance);
   event LogChannelContested(uint amount, address caller);
 
+  event Debug(string str);
+
   modifier channelAlreadyClosed()
   {
     require(closedBlock_ > 0);
@@ -119,14 +121,22 @@ contract STKChannel
     channelIsOpen()
     callerIsChannelParticipant()
   { // update with sig length check
+      Debug('Closing');
       require(closedBlock_ == 0);
       require(_amount <= tokenBalance_);
+
+      Debug('Pre-checks complete');
+
       closedBlock_ = block.number;
       closingAddress_ = msg.sender;
       // This assumes at least one signed message has been sent
       if(_signature.length == 65)
       {
       address signerAddress = recoverAddressFromSignature(_nonce,_amount,_signature);
+
+      Debug('Pre-checks complete');
+
+
       require((signerAddress == userAddress_ && receipientAddress_ == msg.sender) || (signerAddress == receipientAddress_ && userAddress_==msg.sender));
       require(signerAddress!=msg.sender);
         amountOwed_ = _amount;
