@@ -3,7 +3,7 @@ var HumanStandardToken = artifacts.require('./HumanStandardToken.sol');
 var sha3 = require('solidity-sha3').default;
 
 
-contract("STKChannel", function(accounts,done)
+contract("STKChannelClosing", function(accounts,done)
 {
   var userAddress = accounts[0];
   var stackAddress = accounts[1];
@@ -18,7 +18,7 @@ contract("STKChannel", function(accounts,done)
       var signature = web3.eth.sign(web3.eth.accounts[1],hash);
       return STKChannel.deployed().then(function(channel)
       {
-        channel.close(nonce,amount,signature).then(function()
+        return channel.close(nonce,amount,signature).then(function()
         {
           return channel.closedBlock_.call().then(function(block)
           {
@@ -30,5 +30,5 @@ contract("STKChannel", function(accounts,done)
           });
         });
       });
-  });
+  })
 });

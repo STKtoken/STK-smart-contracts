@@ -638,8 +638,112 @@
       },
       "address": "0xe8be5a2bed38fad6caf98019093cf20310e0e386",
       "updated_at": 1508161379433
+    },
+    "1508180985119": {
+      "events": {
+        "0xf7c5f7121b328ce5c14248edc6c3d6586da8cbe83629772d98020bd18a2defec": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "blockNumber",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogChannelOpened",
+          "type": "event"
+        },
+        "0x0ad9d12e2b7a7604448d9f6ce29bad1a4dacd7b3eebd488f4e1858061eafa296": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "blockNumber",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "closer",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogChannelClosed",
+          "type": "event"
+        },
+        "0x62fde48a1f1e1f53dbcc1bdf035a07786f0bb6b69ec77b897bd1f42f4cd735a3": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "depositingAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogDeposited",
+          "type": "event"
+        },
+        "0x73a1661a0cd6baadb9676e29b8e892fff0899dfad250d6d8113082f09999ff39": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "blockNumber",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "finalBalance",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogChannelSettled",
+          "type": "event"
+        },
+        "0xc61b98e9e78da0ac7746ade9a160d04e9392bd55571507cba7792680bc82cfcf": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "caller",
+              "type": "address"
+            }
+          ],
+          "name": "LogChannelContested",
+          "type": "event"
+        }
+      },
+      "links": {
+        "SafeMathLib": "0x9bfc52395071cebe0fdf81572aa5405bc346bc66"
+      },
+      "address": "0x74af2efa8bf8afb0d792c25d0bae1c9de48f4ae0",
+      "updated_at": 1508181031814
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1508161379433
+  "updated_at": 1508181031814
 }
