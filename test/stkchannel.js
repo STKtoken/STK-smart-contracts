@@ -45,7 +45,7 @@ contract("STKChannel",(accounts,done)=>
 
   it('Basic sha3 test',async () => {
   const nonce = 1;
-  const amount = 50;
+  const amount = 0;
   const address = STKChannel.address;
   const sig = sha3(address,nonce,amount);
   const channel = await STKChannel.deployed();
