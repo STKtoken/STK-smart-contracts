@@ -8,12 +8,11 @@ contract("STKChannelClosing", accounts => {
   const stackAddress = accounts[1]
 
   it('user closes the channel with a valid signature', async () => {
-      const nonce = 1
-      const amount = 50
-      const transaction = { from: userAddress }
-      const address = STKChannel.address
-      const hash = sha3(address,nonce,amount)
-      const signature = web3.eth.sign(web3.eth.accounts[1],hash)
+      const nonce = 1;
+      const amount = 0;
+      const address = STKChannel.address;
+      const hash = sha3(address,nonce,amount);
+      const signature = web3.eth.sign(web3.eth.accounts[1],hash);
       console.log("before deployed signature is" + signature);
       const channel = await STKChannel.deployed()
       console.log("before closed");

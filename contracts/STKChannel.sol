@@ -14,15 +14,17 @@ contract STKChannel
    * Storage variables
    */
   Token public token_;
+
   address public userAddress_;
   address public receipientAddress_;
+  address public closingAddress_;
+
   uint public timeout_;
   uint public tokenBalance_;
   uint public amountOwed_;
   uint public openedBlock_;
   uint public closedBlock_;
   uint public closedNonce_;
-  address public closingAddress_;
 
   event LogChannelOpened(address from, address to, uint blockNumber);
   event LogChannelClosed(uint blockNumber, address closer, uint amount);
@@ -31,6 +33,11 @@ contract STKChannel
   event LogChannelContested(uint amount, address caller);
 
   event Debug(string str);
+  event DebugBool(bool result);
+  event DebugAddress(address Address);
+  event DebugUint(uint value);
+
+
 
   modifier channelAlreadyClosed()
   {
@@ -122,23 +129,32 @@ contract STKChannel
     callerIsChannelParticipant()
   { // update with sig length check
       Debug('Closing');
-      require(closedBlock_ == 0);
-      require(_amount <= tokenBalance_);
+      //require(closedBlock_ == 0);
+      //require(_amount <= tokenBalance_);
+      Debug('closedBlock_ == 0');
+      DebugBool(closedBlock_ == 0);
+      Debug('_amount <= tokenBalance_');
+      DebugBool(_amount <= tokenBalance_);
+      Debug('amount');
+      DebugUint(_amount);
 
       Debug('Pre-checks complete');
 
       closedBlock_ = block.number;
       closingAddress_ = msg.sender;
       // This assumes at least one signed message has been sent
+      Debug('signature Length');
+      DebugUint(_signature.length);
       if(_signature.length == 65)
       {
       address signerAddress = recoverAddressFromSignature(_nonce,_amount,_signature);
-
-      Debug('Pre-checks complete');
-
-
-      require((signerAddress == userAddress_ && receipientAddress_ == msg.sender) || (signerAddress == receipientAddress_ && userAddress_==msg.sender));
-      require(signerAddress!=msg.sender);
+      Debug('signerAddress');
+      DebugAddress(signerAddress);
+      //require((signerAddress == userAddress_ && receipientAddress_ == msg.sender) || (signerAddress == receipientAddress_ && userAddress_==msg.sender));
+      Debug('(signerAddress == userAddress_ && receipientAddress_ == msg.sender) || (signerAddress == receipientAddress_ && userAddress_==msg.sender)');
+      DebugBool((signerAddress == userAddress_ && receipientAddress_ == msg.sender) || (signerAddress == receipientAddress_ && userAddress_==msg.sender));
+      //require(signerAddress!=msg.sender);
+      DebugBool(signerAddress!=msg.sender);
         amountOwed_ = _amount;
         closedNonce_ = _nonce;
       }
@@ -215,7 +231,8 @@ contract STKChannel
        returns (address)
    {
        bytes32 signed_hash;
-       require(_signature.length == 65);
+       Debug('_signature.length == 65');
+       DebugBool(_signature.length == 65);
        signed_hash = keccak256(this,_nonce,_amount);
        var (r, s, v) = signatureSplit(_signature);
        return ecrecover(signed_hash, v, r, s);
@@ -242,6 +259,16 @@ contract STKChannel
             // use the second best option, 'and'
             v := and(mload(add(_signature, 65)), 0xff)
         }
-        require(v == 27 || v == 28);
+        Debug('v == 27 || v == 28');
+        DebugBool(v == 27 || v == 28);
+        //require(v == 27 || v == 28);
+    }
+
+    // Debug function
+    function returnSig(uint amount, uint nonce)
+    public
+    returns (bytes32 sig)
+    {
+      sig = keccak256(this,nonce,amount);
     }
 }
