@@ -177,11 +177,21 @@ contract STKChannel
     callerIsChannelParticipant()
     channelAlreadyClosed()
   { // closer cannot update the state of the channel after closing
+    Debug('msgSender');
+    DebugAddress(msg.sender);
     require(msg.sender != closingAddress_);
     bytes32 msgHash = keccak256(this,_nonce,_amount);
-    address signerAddress = ecrecover(msgHash,_v,_r,_s);
+    bytes memory prefix = "\x19Ethereum Signed Message:\n32";
+    bytes32 prefixedHash = keccak256(prefix, msgHash);
+    address signerAddress = ecrecover(prefixedHash,_v,_r,_s);
+    Debug('signer Address');
+    DebugAddress(signerAddress);
+    Debug('signerAddress == closingAddress_');
+    DebugBool(signerAddress == closingAddress_);
     require(signerAddress == closingAddress_);
     // require that the nonce of this transaction be higher than the previous closing nonce
+    Debug('_nonce > closedNonce_');
+    DebugBool(_nonce > closedNonce_);
     require(_nonce > closedNonce_);
     closedNonce_ = _nonce;
     //update the amount
