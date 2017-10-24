@@ -8,6 +8,16 @@ contract("STKChannelClosing", accounts => {
   const userAddress = accounts[0]
   const stackAddress = accounts[1]
 
+  it('Deposit 50 tokens to the stkchannel',async() => {
+   	const token = await HumanStandardToken.deployed();
+  const channel = await STKChannel.deployed();
+  await token.approve(channel.address,50);
+  const allowance = await token.allowance(accounts[0],channel.address);
+  await channel.deposit(50);
+  const balance = await channel.tokenBalance_.call();
+  assert.equal(balance.valueOf(),50,'the deposited values are not equal');
+  });
+
   it('user closes the channel with a valid signature', async () => {
       const nonce = 1;
       const amount = 0;
@@ -137,6 +147,29 @@ contract("STKChannelClosing", accounts => {
       {
         assertJump(error);
       }
-
   })
+  it('Wait for block time and then try to settle ', async()=>
+  {
+
+    const channel = await STKChannel.deployed();
+    const token =  await HumanStandardToken.deployed();
+    const blocksToWait = await channel.timeout_.call();
+    console.log('blocks to wait'+ blocksToWait.valueOf());
+    for(i = 0;i< blocksToWait+2;i++)
+    {
+      var transaction = {from:web3.eth.accounts[0],to:web3.eth.accounts[1],gasPrice:1000000000,value:100};
+      web3.eth.sendTransaction(transaction);
+    }
+      const depositedTokens = await  channel.tokenBalance_.call();
+      console.log('Number of deposited tokens'+ depositedTokens);
+      const oldUserBalance = await token.balanceOf(userAddress);
+      console.log('old user balance' + oldUserBalance.valueOf());
+      const oldStackBalance = await token.balanceOf(stackAddress);
+      console.log('old stack balance' + oldStackBalance.valueOf());
+      const amountToBeTransferred = await channel.amountOwed_.call();
+      await channel.settle();
+      const newUserBalance = await token.balanceOf(userAddress);
+      const newStackBalance = await token.balanceOf(stackAddress);
+      assert.equal(parseInt(newStackBalance.valueOf()), parseInt(oldStackBalance.valueOf() + amountToBeTransferred.valueOf()), 'The stack account value should be credited');
+    })
 })

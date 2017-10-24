@@ -180,6 +180,7 @@ contract STKChannel
     Debug('msgSender');
     DebugAddress(msg.sender);
     require(msg.sender != closingAddress_);
+    require(tokenBalance_ >= _amount);
     bytes32 msgHash = keccak256(this,_nonce,_amount);
     bytes memory prefix = "\x19Ethereum Signed Message:\n32";
     bytes32 prefixedHash = keccak256(prefix, msgHash);
@@ -196,6 +197,7 @@ contract STKChannel
     closedNonce_ = _nonce;
     //update the amount
     amountOwed_ = _amount;
+
     LogChannelContested(_amount,msg.sender);
   }
 
