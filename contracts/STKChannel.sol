@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import "./Token.sol";
+import "./STKToken.sol";
 import "./SafeMathLib.sol";
 
 /**
@@ -13,7 +13,7 @@ contract STKChannel
   /**
    * Storage variables
    */
-  Token public token_;
+  STKToken public token_;
 
   address public userAddress_;
   address public recepientAddress_ ;
@@ -84,7 +84,7 @@ contract STKChannel
       userAddress_ = msg.sender;
       recepientAddress_  = _to;
       timeout_ = _expiryTime;
-      token_ = Token(_addressOfToken);
+      token_ = STKToken(_addressOfToken);
       openedBlock_ = block.number;
       LogChannelOpened(userAddress_,recepientAddress_ ,openedBlock_);
   }
@@ -135,9 +135,7 @@ contract STKChannel
       DebugBool(_amount <= tokenBalance_);
       Debug('amount');
       DebugUint(_amount);
-
       Debug('Pre-checks complete');
-
       closedBlock_ = block.number;
       closingAddress_ = msg.sender;
       // This assumes at least one signed message has been sent
@@ -156,7 +154,6 @@ contract STKChannel
         amountOwed_ = _amount;
         closedNonce_ = _nonce;
       }
-      //can't owe more than the total amount in the channel
       LogChannelClosed(block.number,msg.sender,_amount);
   }
 
@@ -255,7 +252,7 @@ contract STKChannel
    * @param _signature The signed transaction.
    */
    function signatureSplit(bytes _signature)
-        public
+        internal
         returns (bytes32 r, bytes32 s, uint8 v)
     {
         // The signature format is a compact form of:
@@ -277,18 +274,4 @@ contract STKChannel
         DebugBool(v == 27 || v == 28);
         require(v == 27 || v == 28);
     }
-
-    // Debug function
-    function returnSig(uint nonce, uint amount)
-    public
-    returns (bytes32 sig)
-    {
-      sig = keccak256(this,nonce,amount);
-    }
-
-    function ecrecover1(bytes32 msgHash, uint8 v, bytes32 r, bytes32 s) constant returns(address) {
-      bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-      bytes32 prefixedHash = keccak256(prefix, msgHash);
-      return ecrecover(prefixedHash, v, r, s);
-  }
 }
