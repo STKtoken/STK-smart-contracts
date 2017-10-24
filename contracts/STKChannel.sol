@@ -16,7 +16,7 @@ contract STKChannel
   Token public token_;
 
   address public userAddress_;
-  address public receipientAddress_;
+  address public recepientAddress_ ;
   address public closingAddress_;
 
   uint public timeout_;
@@ -64,7 +64,7 @@ contract STKChannel
 
   modifier callerIsChannelParticipant()
   {
-    require(msg.sender == receipientAddress_ || msg.sender == userAddress_);
+    require(msg.sender == recepientAddress_  || msg.sender == userAddress_);
     _;
   }
 
@@ -82,11 +82,11 @@ contract STKChannel
   {  //cannot open a channel with yourself.
       require(_to != msg.sender);
       userAddress_ = msg.sender;
-      receipientAddress_ = _to;
+      recepientAddress_  = _to;
       timeout_ = _expiryTime;
       token_ = Token(_addressOfToken);
       openedBlock_ = block.number;
-      LogChannelOpened(userAddress_,receipientAddress_,openedBlock_);
+      LogChannelOpened(userAddress_,recepientAddress_ ,openedBlock_);
   }
 
   /**
@@ -148,9 +148,9 @@ contract STKChannel
       address signerAddress = recoverAddressFromSignature(_nonce,_amount,_signature);
       Debug('signerAddress');
       DebugAddress(signerAddress);
-      require((signerAddress == userAddress_ && receipientAddress_ == msg.sender) || (signerAddress == receipientAddress_ && userAddress_==msg.sender));
-      Debug('(signerAddress == userAddress_ && receipientAddress_ == msg.sender) || (signerAddress == receipientAddress_ && userAddress_==msg.sender)');
-      DebugBool((signerAddress == userAddress_ && receipientAddress_ == msg.sender) || (signerAddress == receipientAddress_ && userAddress_==msg.sender));
+      require((signerAddress == userAddress_ && recepientAddress_  == msg.sender) || (signerAddress == recepientAddress_  && userAddress_==msg.sender));
+      Debug('(signerAddress == userAddress_ && recepientAddress_  == msg.sender) || (signerAddress == recepientAddress_  && userAddress_==msg.sender)');
+      DebugBool((signerAddress == userAddress_ && recepientAddress_  == msg.sender) || (signerAddress == recepientAddress_  && userAddress_==msg.sender));
       require(signerAddress!=msg.sender);
       DebugBool(signerAddress!=msg.sender);
         amountOwed_ = _amount;
@@ -214,7 +214,7 @@ contract STKChannel
     uint returnToUserAmount = tokenBalance_.minus(amountOwed_);
     if(amountOwed_ > 0)
     {
-      require(token_.transfer(receipientAddress_,amountOwed_));
+      require(token_.transfer(recepientAddress_ ,amountOwed_));
     }
     if(returnToUserAmount > 0)
     {

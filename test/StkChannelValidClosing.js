@@ -1,5 +1,5 @@
 const STKChannel = artifacts.require('./STKChannel.sol')
-const HumanStandardToken = artifacts.require('./HumanStandardToken.sol')
+const STKToken  = artifacts.require('./STKToken .sol')
 const sha3 = require('solidity-sha3').default
 var ethUtil = require('ethereumjs-util')
 const assertJump = require('./helpers/assertJump');
@@ -9,7 +9,7 @@ contract("STKChannelClosing", accounts => {
   const stackAddress = accounts[1]
 
   it('Deposit 50 tokens to the stkchannel',async() => {
-   	const token = await HumanStandardToken.deployed();
+   	const token = await STKToken .deployed();
   const channel = await STKChannel.deployed();
   await token.approve(channel.address,50);
   const allowance = await token.allowance(accounts[0],channel.address);
@@ -152,7 +152,7 @@ contract("STKChannelClosing", accounts => {
   {
 
     const channel = await STKChannel.deployed();
-    const token =  await HumanStandardToken.deployed();
+    const token =  await STKToken .deployed();
     const blocksToWait = await channel.timeout_.call();
     console.log('blocks to wait'+ blocksToWait.valueOf());
     for(i = 0;i< blocksToWait+2;i++)

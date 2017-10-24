@@ -1,5 +1,5 @@
 var STKChannel = artifacts.require('./STKChannel.sol');
-var HumanStandardToken = artifacts.require('./HumanStandardToken.sol');
+var STKToken  = artifacts.require('./STKToken .sol');
 var sha3 = require('solidity-sha3').default;
 contract("STKChannel",(accounts,done)=>
 {
@@ -8,26 +8,26 @@ contract("STKChannel",(accounts,done)=>
   return STKChannel.deployed().then(done).catch(done);
   });
 
-  it("STK Channel user acccount is the first account", async () => {
+  it("STK Channel user acccount is the first account", async() => {
   const instance = await STKChannel.deployed();
   const address = await instance.userAddress_.call();
   assert.equal(address.toString(),accounts[0],'accounts are not equal');
   })
 
-  it('Second account is Recipient account', async () => {
+  it('Second account is Recipient account', async() => {
   const instance = await STKChannel.deployed();
-  const address  = await instance.receipientAddress_.call();
+  const address  = await instance.recepientAddress_ .call();
   assert.equal(address.toString(),accounts[1],'accounts are not equal');
   })
 
-  it('STK Channel expiry time is 50',async () => {
+  it('STK Channel expiry time is 10',async() => {
   const instance = await STKChannel.deployed();
   const timeout = await instance.timeout_.call();
-  assert.equal(timeout.valueOf(),50,'values are not equal');
+  assert.equal(timeout.valueOf(),10,'values are not equal');
   });
 
   it('Deposit 50 tokens to the stkchannel',async() => {
-   	const token = await HumanStandardToken.deployed();
+  const token = await STKToken .deployed();
   const channel = await STKChannel.deployed();
   await token.approve(channel.address,50);
   const allowance = await token.allowance(accounts[0],channel.address);
@@ -43,7 +43,7 @@ contract("STKChannel",(accounts,done)=>
   assert.isAbove(block.valueOf(),0,'closed block is not greater than zero');
   });
 
-  it('Basic sha3 test',async () => {
+  it('Basic sha3 test',async() => {
   const nonce = 1;
   const amount = 0;
   const address = STKChannel.address;
