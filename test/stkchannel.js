@@ -1,5 +1,5 @@
 var STKChannel = artifacts.require('./STKChannel.sol');
-var STKToken  = artifacts.require('./STKToken .sol');
+var STKToken  = artifacts.require('./STKToken.sol');
 var sha3 = require('solidity-sha3').default;
 contract("STKChannel",(accounts,done)=>
 {

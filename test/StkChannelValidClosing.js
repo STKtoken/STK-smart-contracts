@@ -1,5 +1,5 @@
 const STKChannel = artifacts.require('./STKChannel.sol')
-const STKToken  = artifacts.require('./STKToken .sol')
+const STKToken  = artifacts.require('./STKToken.sol')
 const sha3 = require('solidity-sha3').default
 var ethUtil = require('ethereumjs-util')
 const assertJump = require('./helpers/assertJump');
