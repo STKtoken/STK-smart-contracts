@@ -1,6 +1,7 @@
 var STKChannel = artifacts.require('./STKChannel.sol');
 var STKToken  = artifacts.require('./STKToken.sol');
 var sha3 = require('solidity-sha3').default;
+const assertJump = require('./helpers/assertJump');
 contract("STKChannel",(accounts,done)=>
 {
   it("STK Channel is deployed ", function()
@@ -34,6 +35,22 @@ contract("STKChannel",(accounts,done)=>
   await channel.deposit(50);
   const balance = await channel.tokenBalance_.call();
   assert.equal(balance.valueOf(),50,'the deposited values are not equal');
+  });
+
+  it('Non-userAddress attempts to deposit into account',async() => {
+    const token = await STKToken.deployed();
+    const channel = await STKChannel.deployed();
+    await token.transfer(accounts[2],50);
+    const allowance = await token.allowance(accounts[2],channel.address,{from:accounts[2]});
+    try
+    {
+      await channel.deposit(50,{from:accounts[2]});
+      assert.fail('The deposit should have thrown an exception');
+    }
+    catch(error)
+    {
+      assertJump(error);
+    }
   });
 
   it('Close the channel without a signature',async () => {

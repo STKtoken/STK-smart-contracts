@@ -18,6 +18,23 @@ contract("STKChannelClosing", accounts => {
   assert.equal(balance.valueOf(),50,'the deposited values are not equal');
   });
 
+  it('user tries to  close the channel with a valid signature but amount is above the deposited amount', async () => {
+      const nonce = 1;
+      const amount = 10000;
+      const address = STKChannel.address;
+      const hash = sha3(address,nonce,amount);
+      const signature = web3.eth.sign(web3.eth.accounts[1],hash);
+      const channel = await STKChannel.deployed()
+      try
+      {
+      await channel.close(nonce,amount,signature)
+      assert.fail('The amount should have caused an exception to be thrown');
+      }
+      catch(error)
+      {
+        assertJump(error);
+      }
+  })
   it('user closes the channel with a valid signature', async () => {
       const nonce = 1;
       const amount = 0;
@@ -31,9 +48,30 @@ contract("STKChannelClosing", accounts => {
       const block = await channel.closedBlock_.call()
       console.log("after closed");
       assert.isAbove(block.valueOf(),0,'The closed block should not be zero or below')
-
       const addr = await channel.closingAddress_.call()
       assert.equal(addr,userAddress,'the closing address and userAddress should match')
+  })
+  it('Channel recepient contests the closing of the channel but the amount is above the deposited amount', async ()=>{
+    const nonce = 2 ;
+    const amount =10000 ;
+    const address = STKChannel.address ;
+    const channel = await STKChannel.deployed()
+    const hash = sha3(address,nonce,amount);
+    const signature = web3.eth.sign(web3.eth.accounts[0],hash);
+    console.log('contesting channel');
+    signatureData = ethUtil.fromRpcSig(signature)
+    let v = ethUtil.bufferToHex(signatureData.v)
+    let r = ethUtil.bufferToHex(signatureData.r)
+    let s = ethUtil.bufferToHex(signatureData.s)
+    try
+    {
+    await channel.updateClosedChannel(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
+    assert.fail('This should have thrown due to incorrect amount ');
+    }
+    catch(error)
+    {
+      assertJump(error);
+    }
   })
 
   it('Channel recepient contests the closing of the channel ', async ()=>{
