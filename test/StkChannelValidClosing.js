@@ -209,5 +209,6 @@ contract("STKChannelClosing", accounts => {
       const newUserBalance = await token.balanceOf(userAddress);
       const newStackBalance = await token.balanceOf(stackAddress);
       assert.equal(parseInt(newStackBalance.valueOf()), parseInt(oldStackBalance.valueOf() + amountToBeTransferred.valueOf()), 'The stack account value should be credited');
+      assert.equal(parseInt(newUserBalance.valueOf()),parseInt(oldUserBalance.valueOf()) + parseInt(depositedTokens.valueOf()) - parseInt(amountToBeTransferred.valueOf()),'The User address should get back the unused tokens');
     })
 })
