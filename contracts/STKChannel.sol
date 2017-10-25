@@ -72,18 +72,18 @@ contract STKChannel
    * @dev Contract constructor
    * @param _to The receiving address in the contract.
    * @param _addressOfToken The address when the ERC20 token is deployed.
-   * @param _expiryTime The time in blocks of waiting after channel closing after which it can be settled.
+   * @param _expiryNumberofBlocks The time in blocks of waiting after channel closing after which it can be settled.
    */
   function STKChannel(
     address _to,
     address _addressOfToken,
-    uint _expiryTime)
+    uint _expiryNumberofBlocks)
     public
   {  //cannot open a channel with yourself.
       require(_to != msg.sender);
       userAddress_ = msg.sender;
       recepientAddress_  = _to;
-      timeout_ = _expiryTime;
+      timeout_ = _expiryNumberofBlocks;
       token_ = STKToken(_addressOfToken);
       openedBlock_ = block.number;
       LogChannelOpened(userAddress_,recepientAddress_ ,openedBlock_);
