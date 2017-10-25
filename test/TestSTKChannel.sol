@@ -9,7 +9,6 @@ contract TestSTKChannel
   {
     uint nonce = 1;
     uint amount = 0 ;
-    address channelAddress  = STKChannel(DeployedAddresses.STKChannel());
     bytes32 msgHash  = keccak256(1234,nonce,amount);
     Debug(msgHash);
   }
