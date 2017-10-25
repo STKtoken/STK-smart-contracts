@@ -13,7 +13,10 @@ contract("STKChannelClosing", accounts => {
   const channel = await STKChannel.deployed();
   await token.approve(channel.address,50);
   const allowance = await token.allowance(accounts[0],channel.address);
+  const cost  = await  channel.deposit.estimateGas(50);
+  console.log('estimated gas cost of depositing into the channel -- this neglects cost of approving tokens for transfer: ' + cost );
   await channel.deposit(50);
+
   const balance = await channel.tokenBalance_.call();
   assert.equal(balance.valueOf(),50,'the deposited values are not equal');
   });
@@ -44,6 +47,8 @@ contract("STKChannelClosing", accounts => {
       console.log("before deployed signature is" + signature);
       const channel = await STKChannel.deployed()
       console.log("before closed");
+      const cost  = await  channel.close.estimateGas(nonce,amount,signature);
+      console.log('estimated gas cost of closing the channel: ' + cost );
       await channel.close(nonce,amount,signature)
       const block = await channel.closedBlock_.call()
       console.log("after closed");
@@ -86,6 +91,8 @@ contract("STKChannelClosing", accounts => {
     let v = ethUtil.bufferToHex(signatureData.v)
     let r = ethUtil.bufferToHex(signatureData.r)
     let s = ethUtil.bufferToHex(signatureData.s)
+    const cost  = await  channel.updateClosedChannel.estimateGas(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
+    console.log('estimated gas cost of contesting the channel after closing: ' + cost );
     await channel.updateClosedChannel(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
     const newAmount = await channel.amountOwed_.call();
     assert.equal(amount,newAmount,'Amount should be updated');
