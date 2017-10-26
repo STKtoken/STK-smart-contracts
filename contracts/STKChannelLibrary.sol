@@ -10,7 +10,7 @@ library STKChannelLibrary
     struct STKChannelData
     { STKToken  token_;
       address userAddress_;
-      address recepientAddress_;
+      address recipientAddress_;
       address closingAddress_;
       uint timeout_;
       uint tokenBalance_;
@@ -21,10 +21,6 @@ library STKChannelLibrary
     }
 
     event LogChannelSettled(uint blockNumber, uint finalBalance);
-    event Debug(string str);
-    event DebugBool(bool result);
-    event DebugAddress(address Address);
-    event DebugUint(uint value);
 
     modifier channelAlreadyClosed(STKChannelData storage data)
     {
@@ -53,7 +49,7 @@ library STKChannelLibrary
 
     modifier callerIsChannelParticipant(STKChannelData storage data)
     {
-      require(msg.sender == data.recepientAddress_  || msg.sender == data.userAddress_);
+      require(msg.sender == data.recipientAddress_  || msg.sender == data.userAddress_);
       _;
     }
 
@@ -90,31 +86,14 @@ library STKChannelLibrary
       public
       channelIsOpen(data)
       callerIsChannelParticipant(data)
-    { // update with sig length check
-        Debug('Closing');
-        require(_amount <= data.tokenBalance_);
-        Debug('closedBlock_ == 0');
-        DebugBool(data.closedBlock_ == 0);
-        Debug('_amount <= tokenBalance_');
-        DebugBool(_amount <= data.tokenBalance_);
-        Debug('amount');
-        DebugUint(_amount);
-        Debug('Pre-checks complete');
-        // This assumes at least one signed message has been sent
-        Debug('signature Length');
-        DebugUint(_signature.length);
+    {   require(_amount <= data.tokenBalance_);
         if(_signature.length == 65)
         {
         address signerAddress = recoverAddressFromSignature(_nonce,_amount,_signature);
-        Debug('signerAddress');
-        DebugAddress(signerAddress);
-        require((signerAddress == data.userAddress_ && data.recepientAddress_  == msg.sender) || (signerAddress == data.recepientAddress_  && data.userAddress_==msg.sender));
-        Debug('(signerAddress == userAddress_ && recepientAddress_  == msg.sender) || (signerAddress == recepientAddress_  && userAddress_==msg.sender)');
-        DebugBool((signerAddress == data.userAddress_ && data.recepientAddress_  == msg.sender) || (signerAddress == data.recepientAddress_  && data.userAddress_==msg.sender));
+        require((signerAddress == data.userAddress_ && data.recipientAddress_  == msg.sender) || (signerAddress == data.recipientAddress_  && data.userAddress_==msg.sender));
         require(signerAddress!=msg.sender);
-        DebugBool(signerAddress!=msg.sender);
-          data.amountOwed_ = _amount;
-          data.closedNonce_ = _nonce;
+        data.amountOwed_ = _amount;
+        data.closedNonce_ = _nonce;
         }
         data.closedBlock_ = block.number;
         data.closingAddress_ = msg.sender;
@@ -138,22 +117,14 @@ library STKChannelLibrary
       callerIsChannelParticipant(data)
       channelAlreadyClosed(data)
     { // closer cannot update the state of the channel after closing
-      Debug('msgSender');
-      DebugAddress(msg.sender);
       require(msg.sender != data.closingAddress_);
       require(data.tokenBalance_ >= _amount);
       bytes32 msgHash = keccak256(this,_nonce,_amount);
       bytes memory prefix = "\x19Ethereum Signed Message:\n32";
       bytes32 prefixedHash = keccak256(prefix, msgHash);
       address signerAddress = ecrecover(prefixedHash,_v,_r,_s);
-      Debug('signer Address');
-      DebugAddress(signerAddress);
-      Debug('signerAddress == closingAddress_');
-      DebugBool(signerAddress == data.closingAddress_);
       require(signerAddress == data.closingAddress_);
       // require that the nonce of this transaction be higher than the previous closing nonce
-      Debug('_nonce > closedNonce_');
-      DebugBool(_nonce > data.closedNonce_);
       require(_nonce > data.closedNonce_);
       data.closedNonce_ = _nonce;
       //update the amount
@@ -174,7 +145,7 @@ library STKChannelLibrary
       uint returnToUserAmount = data.tokenBalance_.minus(data.amountOwed_);
       if(data.amountOwed_ > 0)
       {
-        require(data.token_.transfer(data.recepientAddress_ ,data.amountOwed_));
+        require(data.token_.transfer(data.recipientAddress_ ,data.amountOwed_));
       }
       if(returnToUserAmount > 0)
       {
@@ -200,8 +171,6 @@ library STKChannelLibrary
          internal
          returns (address)
      {
-         Debug('_signature.length == 65');
-         DebugBool(_signature.length == 65);
          bytes memory prefix = "\x19Ethereum Signed Message:\n32";
          bytes32 msgHash = keccak256(this,_nonce,_amount);
          bytes32 prefixedHash = keccak256(prefix, msgHash);
@@ -232,8 +201,6 @@ library STKChannelLibrary
           }
           if(v ==0 || v ==1)
             v = v + 27 ;
-          Debug('v == 27 || v == 28');
-          DebugBool(v == 27 || v == 28);
           require(v == 27 || v == 28);
       }
 }

@@ -34,11 +34,11 @@ contract STKChannel
        //cannot open a channel with yourself.
        require(_to != msg.sender);
        channelData_.userAddress_ = msg.sender;
-       channelData_.recepientAddress_  = _to;
+       channelData_.recipientAddress_  = _to;
        channelData_.timeout_ = _expiryNumberofBlocks;
        channelData_.token_ = STKToken(_addressOfToken);
        channelData_.openedBlock_ = block.number;
-      LogChannelOpened(channelData_.userAddress_,channelData_.recepientAddress_ ,channelData_.openedBlock_);
+      LogChannelOpened(channelData_.userAddress_,channelData_.recipientAddress_ ,channelData_.openedBlock_);
   }
 
   /**

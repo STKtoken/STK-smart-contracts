@@ -44,25 +44,21 @@ contract("STKChannelClosing", accounts => {
       const channel = await STKChannel.deployed()
       const hash = sha3(channel.address,nonce,amount);
       const signature = web3.eth.sign(web3.eth.accounts[1],hash);
-      console.log("before deployed signature is" + signature);
-      console.log("before closed");
       await channel.close(nonce,amount,signature)
       const data  = await channel.channelData_.call();
       const block = data[indexes.CLOSED_BLOCK];
       const address = data[indexes.CLOSING_ADDRESS];
-      console.log("after closed");
       assert.isAbove(block.valueOf(),0,'The closed block should not be zero or below')
       assert.equal(address,userAddress,'the closing address and userAddress should match')
   })
 
-  it('Channel recepient contests the closing of the channel but the amount is above the deposited amount', async ()=>{
+  it('Channel recipient contests the closing of the channel but the amount is above the deposited amount', async ()=>{
     const nonce = 2 ;
     const amount =10000 ;
     const address = STKChannel.address ;
     const channel = await STKChannel.deployed()
     const hash = sha3(address,nonce,amount);
     const signature = web3.eth.sign(web3.eth.accounts[0],hash);
-    console.log('contesting channel');
     signatureData = ethUtil.fromRpcSig(signature)
     let v = ethUtil.bufferToHex(signatureData.v)
     let r = ethUtil.bufferToHex(signatureData.r)
@@ -78,14 +74,13 @@ contract("STKChannelClosing", accounts => {
     }
   })
 
-  it('Channel recepient contests the closing of the channel ', async ()=>{
+  it('Channel recipient contests the closing of the channel ', async ()=>{
     const nonce = 2 ;
     const amount =2 ;
     const address = STKChannel.address ;
     const channel = await STKChannel.deployed()
     const hash = sha3(address,nonce,amount);
     const signature = web3.eth.sign(web3.eth.accounts[0],hash);
-    console.log('contesting channel');
     signatureData = ethUtil.fromRpcSig(signature)
     let v = ethUtil.bufferToHex(signatureData.v)
     let r = ethUtil.bufferToHex(signatureData.r)
@@ -119,7 +114,6 @@ contract("STKChannelClosing", accounts => {
     const channel = await STKChannel.deployed()
     const hash = sha3(address,nonce,amount);
     const signature = web3.eth.sign(web3.eth.accounts[1],hash);
-    console.log('contesting channel');
     signatureData = ethUtil.fromRpcSig(signature)
     let v = ethUtil.bufferToHex(signatureData.v)
     let r = ethUtil.bufferToHex(signatureData.r)
@@ -141,7 +135,6 @@ contract("STKChannelClosing", accounts => {
     const channel = await STKChannel.deployed()
     const hash = sha3(address,nonce,amount);
     const signature = web3.eth.sign(web3.eth.accounts[0],hash);
-    console.log('contesting channel');
     signatureData = ethUtil.fromRpcSig(signature)
     let v = ethUtil.bufferToHex(signatureData.v)
     let r = ethUtil.bufferToHex(signatureData.r)
@@ -165,7 +158,6 @@ contract("STKChannelClosing", accounts => {
     const channel = await STKChannel.deployed()
     const hash = sha3(address,nonce,amount);
     const signature = web3.eth.sign(web3.eth.accounts[0],hash);
-    console.log('contesting channel');
     signatureData = ethUtil.fromRpcSig(signature)
     let v = ethUtil.bufferToHex(signatureData.v)
     let r = ethUtil.bufferToHex(signatureData.r)
@@ -198,18 +190,15 @@ contract("STKChannelClosing", accounts => {
     const token =  await STKToken .deployed();
     const data  = await channel.channelData_.call();
     const blocksToWait = data[indexes.TIMEOUT];
-    console.log('blocks to wait'+ blocksToWait.valueOf());
+    console.log('blocks to wait: '+ blocksToWait.valueOf());
     for(i = 0;i< blocksToWait+2;i++)
     {
       var transaction = {from:web3.eth.accounts[0],to:web3.eth.accounts[1],gasPrice:1000000000,value:100};
       web3.eth.sendTransaction(transaction);
     }
       const depositedTokens = data[indexes.TOKEN_BALANCE];
-      console.log('Number of deposited tokens'+ depositedTokens);
       const oldUserBalance = await token.balanceOf(userAddress);
-      console.log('old user balance' + oldUserBalance.valueOf());
       const oldStackBalance = await token.balanceOf(stackAddress);
-      console.log('old stack balance' + oldStackBalance.valueOf());
       const amountToBeTransferred = data[indexes.AMOUNT_OWED];
       await channel.settle();
       const newUserBalance = await token.balanceOf(userAddress);
