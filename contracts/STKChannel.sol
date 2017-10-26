@@ -120,11 +120,8 @@ contract STKChannel
     external
     channelIsOpen()
     callerIsChannelParticipant()
-  { // update with sig length check
+  {
       require(_amount <= tokenBalance_);
-      closedBlock_ = block.number;
-      closingAddress_ = msg.sender;
-      // This assumes at least one signed message has been sent
       if(_signature.length == 65)
       {
       address signerAddress = recoverAddressFromSignature(_nonce,_amount,_signature);
@@ -133,6 +130,8 @@ contract STKChannel
         amountOwed_ = _amount;
         closedNonce_ = _nonce;
       }
+      closedBlock_ = block.number;
+      closingAddress_ = msg.sender;
       LogChannelClosed(block.number,msg.sender,_amount);
   }
 
@@ -190,7 +189,7 @@ contract STKChannel
     }
     LogChannelSettled(block.number, amountOwed_);
     //destroy the payment channel, if anyone accidentally sent ether to this address it gets sent to the recepient.
-    selfdestruct(recepientAddress_;
+    selfdestruct(recepientAddress_);
   }
 
   /**
