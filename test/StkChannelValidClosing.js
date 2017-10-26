@@ -56,7 +56,7 @@ contract("STKChannelClosing", accounts => {
       const addr = await channel.closingAddress_.call()
       assert.equal(addr,userAddress,'the closing address and userAddress should match')
   })
-  it('Channel recepient contests the closing of the channel but the amount is above the deposited amount', async ()=>{
+  it('Channel recipient contests the closing of the channel but the amount is above the deposited amount', async ()=>{
     const nonce = 2 ;
     const amount =10000 ;
     const address = STKChannel.address ;
@@ -78,7 +78,7 @@ contract("STKChannelClosing", accounts => {
     }
   })
 
-  it('Channel recepient contests the closing of the channel ', async ()=>{
+  it('Channel recipient contests the closing of the channel ', async ()=>{
     const nonce = 2 ;
     const amount =2 ;
     const address = STKChannel.address ;
