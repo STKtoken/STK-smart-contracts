@@ -17,7 +17,7 @@ contract("STKChannel",(accounts,done)=>
 
   it('Second account is Recipient account', async() => {
   const instance = await STKChannel.deployed();
-  const address  = await instance.recepientAddress_ .call();
+  const address  = await instance.recipientAddress_ .call();
   assert.equal(address.toString(),accounts[1],'accounts are not equal');
   })
 

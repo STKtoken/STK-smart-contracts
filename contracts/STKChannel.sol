@@ -16,7 +16,7 @@ contract STKChannel
   STKToken public token_;
 
   address public userAddress_;
-  address public recepientAddress_ ;
+  address public recipientAddress_ ;
   address public closingAddress_;
 
   uint public timeout_;
@@ -59,7 +59,7 @@ contract STKChannel
 
   modifier callerIsChannelParticipant()
   {
-    require(msg.sender == recepientAddress_  || msg.sender == userAddress_);
+    require(msg.sender == recipientAddress_  || msg.sender == userAddress_);
     _;
   }
 
@@ -77,11 +77,11 @@ contract STKChannel
   {  //cannot open a channel with yourself.
       require(_to != msg.sender);
       userAddress_ = msg.sender;
-      recepientAddress_  = _to;
+      recipientAddress_  = _to;
       timeout_ = _expiryNumberofBlocks;
       token_ = STKToken(_addressOfToken);
       openedBlock_ = block.number;
-      LogChannelOpened(userAddress_,recepientAddress_ ,openedBlock_);
+      LogChannelOpened(userAddress_,recipientAddress_ ,openedBlock_);
   }
 
   /**
@@ -125,7 +125,7 @@ contract STKChannel
       if(_signature.length == 65)
       {
       address signerAddress = recoverAddressFromSignature(_nonce,_amount,_signature);
-      require((signerAddress == userAddress_ && recepientAddress_  == msg.sender) || (signerAddress == recepientAddress_  && userAddress_==msg.sender));
+      require((signerAddress == userAddress_ && recipientAddress_  == msg.sender) || (signerAddress == recipientAddress_  && userAddress_==msg.sender));
       require(signerAddress!=msg.sender);
         amountOwed_ = _amount;
         closedNonce_ = _nonce;
@@ -181,7 +181,7 @@ contract STKChannel
     uint returnToUserAmount = tokenBalance_.minus(amountOwed_);
     if(amountOwed_ > 0)
     {
-      require(token_.transfer(recepientAddress_ ,amountOwed_));
+      require(token_.transfer(recipientAddress_ ,amountOwed_));
     }
     if(returnToUserAmount > 0)
     {
@@ -189,7 +189,7 @@ contract STKChannel
     }
     LogChannelSettled(block.number, amountOwed_);
     //destroy the payment channel, if anyone accidentally sent ether to this address it gets sent to the recepient.
-    selfdestruct(recepientAddress_);
+    selfdestruct(recipientAddress_);
   }
 
   /**

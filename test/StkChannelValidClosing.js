@@ -63,7 +63,6 @@ contract("STKChannelClosing", accounts => {
     const channel = await STKChannel.deployed()
     const hash = sha3(address,nonce,amount);
     const signature = web3.eth.sign(web3.eth.accounts[0],hash);
-    console.log('contesting channel');
     signatureData = ethUtil.fromRpcSig(signature)
     let v = ethUtil.bufferToHex(signatureData.v)
     let r = ethUtil.bufferToHex(signatureData.r)
@@ -86,7 +85,6 @@ contract("STKChannelClosing", accounts => {
     const channel = await STKChannel.deployed()
     const hash = sha3(address,nonce,amount);
     const signature = web3.eth.sign(web3.eth.accounts[0],hash);
-    console.log('contesting channel');
     signatureData = ethUtil.fromRpcSig(signature)
     let v = ethUtil.bufferToHex(signatureData.v)
     let r = ethUtil.bufferToHex(signatureData.r)
@@ -121,7 +119,6 @@ contract("STKChannelClosing", accounts => {
     const channel = await STKChannel.deployed()
     const hash = sha3(address,nonce,amount);
     const signature = web3.eth.sign(web3.eth.accounts[1],hash);
-    console.log('contesting channel');
     signatureData = ethUtil.fromRpcSig(signature)
     let v = ethUtil.bufferToHex(signatureData.v)
     let r = ethUtil.bufferToHex(signatureData.r)
@@ -143,7 +140,6 @@ contract("STKChannelClosing", accounts => {
     const channel = await STKChannel.deployed()
     const hash = sha3(address,nonce,amount);
     const signature = web3.eth.sign(web3.eth.accounts[0],hash);
-    console.log('contesting channel');
     signatureData = ethUtil.fromRpcSig(signature)
     let v = ethUtil.bufferToHex(signatureData.v)
     let r = ethUtil.bufferToHex(signatureData.r)
@@ -167,7 +163,6 @@ contract("STKChannelClosing", accounts => {
     const channel = await STKChannel.deployed()
     const hash = sha3(address,nonce,amount);
     const signature = web3.eth.sign(web3.eth.accounts[0],hash);
-    console.log('contesting channel');
     signatureData = ethUtil.fromRpcSig(signature)
     let v = ethUtil.bufferToHex(signatureData.v)
     let r = ethUtil.bufferToHex(signatureData.r)
@@ -208,9 +203,7 @@ contract("STKChannelClosing", accounts => {
       const depositedTokens = await  channel.tokenBalance_.call();
       console.log('Number of deposited tokens'+ depositedTokens);
       const oldUserBalance = await token.balanceOf(userAddress);
-      console.log('old user balance' + oldUserBalance.valueOf());
       const oldStackBalance = await token.balanceOf(stackAddress);
-      console.log('old stack balance' + oldStackBalance.valueOf());
       const amountToBeTransferred = await channel.amountOwed_.call();
       await channel.settle();
       const newUserBalance = await token.balanceOf(userAddress);
