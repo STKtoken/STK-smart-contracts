@@ -1,7 +1,6 @@
 pragma solidity ^0.4.11;
 
-import "./STKToken.sol";
-import "./SafeMathLib.sol";
+import "./STKChannelLibrary.sol";
 
 /**
 Payment Channel between two parties that allows multiple deposits.
@@ -9,64 +8,16 @@ Once closed, there is a contest period which allows state updates.
 */
 contract STKChannel
 {
-  using SafeMathLib for uint;
+  using STKChannelLibrary for STKChannelLibrary.STKChannelData;
   /**
    * Storage variables
    */
-  STKToken public token_;
+  STKChannelLibrary.STKChannelData public channelData_;
 
-  address public userAddress_;
-  address public recepientAddress_ ;
-  address public closingAddress_;
-
-  uint public timeout_;
-  uint public tokenBalance_;
-  uint public amountOwed_;
-  uint public openedBlock_;
-  uint public closedBlock_;
-  uint public closedNonce_;
-
-  event LogChannelOpened(address from, address to, uint blockNumber);
-  event LogChannelClosed(uint blockNumber, address closer, uint amount);
-  event LogDeposited(address depositingAddress, uint amount);
-  event LogChannelSettled(uint blockNumber, uint finalBalance);
-  event LogChannelContested(uint amount, address caller);
-
-  event Debug(string str);
-  event DebugBool(bool result);
-  event DebugAddress(address Address);
-  event DebugUint(uint value);
-
-  modifier channelAlreadyClosed()
-  {
-    require(closedBlock_ > 0);
-    _;
-  }
-
-  modifier timeoutNotOver()
-  {
-    require(closedBlock_ + timeout_ >= block.number);
-    _;
-  }
-
-  modifier timeoutOver()
-  {
-    require(closedBlock_ + timeout_ < block.number);
-    _;
-  }
-
-  modifier channelIsOpen()
-  {
-    require(closedBlock_ == 0);
-    require(openedBlock_ > 0);
-    _;
-  }
-
-  modifier callerIsChannelParticipant()
-  {
-    require(msg.sender == recepientAddress_  || msg.sender == userAddress_);
-    _;
-  }
+  event LogChannelOpened(address from, address to,uint blockNumber);
+  event LogChannelClosed(uint blockNumber,address closer,uint amount);
+  event LogDeposited(address depositingAddress,uint amount);
+  event LogChannelContested(uint amount,address caller);
 
   /**
    * @dev Contract constructor
@@ -79,14 +30,15 @@ contract STKChannel
     address _addressOfToken,
     uint _expiryNumberofBlocks)
     public
-  {  //cannot open a channel with yourself.
-      require(_to != msg.sender);
-      userAddress_ = msg.sender;
-      recepientAddress_  = _to;
-      timeout_ = _expiryNumberofBlocks;
-      token_ = STKToken(_addressOfToken);
-      openedBlock_ = block.number;
-      LogChannelOpened(userAddress_,recepientAddress_ ,openedBlock_);
+  {
+       //cannot open a channel with yourself.
+       require(_to != msg.sender);
+       channelData_.userAddress_ = msg.sender;
+       channelData_.recepientAddress_  = _to;
+       channelData_.timeout_ = _expiryNumberofBlocks;
+       channelData_.token_ = STKToken(_addressOfToken);
+       channelData_.openedBlock_ = block.number;
+      LogChannelOpened(channelData_.userAddress_,channelData_.recepientAddress_ ,channelData_.openedBlock_);
   }
 
   /**
@@ -95,22 +47,9 @@ contract STKChannel
   */
   function deposit(uint256 _amount)
     external
-    channelIsOpen()
-    returns (bool,uint256)
   {
-    // only user can deposit into account
-    require(msg.sender == userAddress_);
-    require(_amount>0);
-    require(token_.balanceOf(msg.sender) >= _amount);
-    require(token_.allowance(msg.sender,this) >= _amount);
-    var success = token_.transferFrom(msg.sender,this,_amount);
-    if(success == true)
-    {
-      tokenBalance_ = tokenBalance_.plus(_amount);
-      LogDeposited(msg.sender,_amount);
-      return (true,tokenBalance_);
-    }
-    return (false, 0);
+    channelData_.deposit(_amount);
+    LogDeposited(msg.sender,_amount);
   }
 
   /**
@@ -123,38 +62,9 @@ contract STKChannel
     uint _amount,
     bytes _signature)
     external
-    channelIsOpen()
-    callerIsChannelParticipant()
-  { // update with sig length check
-      Debug('Closing');
-      require(closedBlock_ == 0);
-      require(_amount <= tokenBalance_);
-      Debug('closedBlock_ == 0');
-      DebugBool(closedBlock_ == 0);
-      Debug('_amount <= tokenBalance_');
-      DebugBool(_amount <= tokenBalance_);
-      Debug('amount');
-      DebugUint(_amount);
-      Debug('Pre-checks complete');
-      closedBlock_ = block.number;
-      closingAddress_ = msg.sender;
-      // This assumes at least one signed message has been sent
-      Debug('signature Length');
-      DebugUint(_signature.length);
-      if(_signature.length == 65)
-      {
-      address signerAddress = recoverAddressFromSignature(_nonce,_amount,_signature);
-      Debug('signerAddress');
-      DebugAddress(signerAddress);
-      require((signerAddress == userAddress_ && recepientAddress_  == msg.sender) || (signerAddress == recepientAddress_  && userAddress_==msg.sender));
-      Debug('(signerAddress == userAddress_ && recepientAddress_  == msg.sender) || (signerAddress == recepientAddress_  && userAddress_==msg.sender)');
-      DebugBool((signerAddress == userAddress_ && recepientAddress_  == msg.sender) || (signerAddress == recepientAddress_  && userAddress_==msg.sender));
-      require(signerAddress!=msg.sender);
-      DebugBool(signerAddress!=msg.sender);
-        amountOwed_ = _amount;
-        closedNonce_ = _nonce;
-      }
-      LogChannelClosed(block.number,msg.sender,_amount);
+  {
+    channelData_.close(_nonce,_amount,_signature);
+    LogChannelClosed(block.number,msg.sender,_amount);
   }
 
   /**
@@ -171,30 +81,8 @@ contract STKChannel
     bytes32 _r,
     bytes32 _s)
     external
-    callerIsChannelParticipant()
-    channelAlreadyClosed()
-  { // closer cannot update the state of the channel after closing
-    Debug('msgSender');
-    DebugAddress(msg.sender);
-    require(msg.sender != closingAddress_);
-    require(tokenBalance_ >= _amount);
-    bytes32 msgHash = keccak256(this,_nonce,_amount);
-    bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-    bytes32 prefixedHash = keccak256(prefix, msgHash);
-    address signerAddress = ecrecover(prefixedHash,_v,_r,_s);
-    Debug('signer Address');
-    DebugAddress(signerAddress);
-    Debug('signerAddress == closingAddress_');
-    DebugBool(signerAddress == closingAddress_);
-    require(signerAddress == closingAddress_);
-    // require that the nonce of this transaction be higher than the previous closing nonce
-    Debug('_nonce > closedNonce_');
-    DebugBool(_nonce > closedNonce_);
-    require(_nonce > closedNonce_);
-    closedNonce_ = _nonce;
-    //update the amount
-    amountOwed_ = _amount;
-
+  {
+    channelData_.updateClosedChannel(_nonce,_amount,_v,_r,_s);
     LogChannelContested(_amount,msg.sender);
   }
 
@@ -203,75 +91,7 @@ contract STKChannel
   */
   function settle()
     external
-    channelAlreadyClosed()
-    timeoutOver()
-    callerIsChannelParticipant()
   {
-    require(tokenBalance_ >= amountOwed_);
-    uint returnToUserAmount = tokenBalance_.minus(amountOwed_);
-    if(amountOwed_ > 0)
-    {
-      require(token_.transfer(recepientAddress_ ,amountOwed_));
-    }
-    if(returnToUserAmount > 0)
-    {
-      require(token_.transfer(userAddress_,returnToUserAmount));
-    }
-    LogChannelSettled(block.number, amountOwed_);
-    //destroy the payment channel, if anyone accidentally sent ether to this address it gets burned here.
-    selfdestruct(address(0));
+    channelData_.settle();
   }
-
-  /**
-  * @notice Internal function to recover the signing address of a signature.
-  * @param _nonce The nonce of the new transaction in the contest, must be higher than the previously claimed nonce.
-  * @param _amount The amount of tokens claimed to be transferred.
-  * @param _signature The signed transaction.
-  */
-  function recoverAddressFromSignature(
-       uint _nonce,
-       uint _amount,
-       bytes _signature
-    )
-       constant
-       internal
-       returns (address)
-   {
-       Debug('_signature.length == 65');
-       DebugBool(_signature.length == 65);
-       bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-       bytes32 msgHash = keccak256(this,_nonce,_amount);
-       bytes32 prefixedHash = keccak256(prefix, msgHash);
-       var (r, s, v) = signatureSplit(_signature);
-
-       return ecrecover(prefixedHash, v, r, s);
-   }
-
-   /**
-   * @notice Internal function to split a signature into the component (r,s,v).
-   * @param _signature The signed transaction.
-   */
-   function signatureSplit(bytes _signature)
-        internal
-        returns (bytes32 r, bytes32 s, uint8 v)
-    {
-        // The signature format is a compact form of:
-        // {bytes32 r}{bytes32 s}{uint8 v}
-        // Compact means, uint8 is not padded to 32 bytes.
-        assembly {
-            r := mload(add(_signature, 32))
-            s := mload(add(_signature, 64))
-            // Here we are loading the last 32 bytes, including 31 bytes
-            // of 's'. There is no 'mload8' to do this.
-            //
-            // 'byte' is not working due to the Solidity parser, so lets
-            // use the second best option, 'and'
-            v := and(mload(add(_signature, 65)), 0xff)
-        }
-        if(v ==0 || v ==1)
-          v = v + 27 ;
-        Debug('v == 27 || v == 28');
-        DebugBool(v == 27 || v == 28);
-        require(v == 27 || v == 28);
-    }
 }
