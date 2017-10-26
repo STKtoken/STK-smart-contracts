@@ -92,7 +92,6 @@ library STKChannelLibrary
       callerIsChannelParticipant(data)
     { // update with sig length check
         Debug('Closing');
-        require(data.closedBlock_ == 0);
         require(_amount <= data.tokenBalance_);
         Debug('closedBlock_ == 0');
         DebugBool(data.closedBlock_ == 0);
@@ -101,8 +100,6 @@ library STKChannelLibrary
         Debug('amount');
         DebugUint(_amount);
         Debug('Pre-checks complete');
-        data.closedBlock_ = block.number;
-        data.closingAddress_ = msg.sender;
         // This assumes at least one signed message has been sent
         Debug('signature Length');
         DebugUint(_signature.length);
@@ -119,6 +116,8 @@ library STKChannelLibrary
           data.amountOwed_ = _amount;
           data.closedNonce_ = _nonce;
         }
+        data.closedBlock_ = block.number;
+        data.closingAddress_ = msg.sender;
     }
 
     /**
