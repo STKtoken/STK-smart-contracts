@@ -2,6 +2,7 @@ var STKChannel = artifacts.require('./STKChannel.sol');
 var STKToken  = artifacts.require('./STKToken.sol');
 var sha3 = require('solidity-sha3').default;
 const assertJump = require('./helpers/assertJump');
+var indexes = require('./helpers/ChannelDataIndexes');
 contract("STKChannel",(accounts,done)=>
 {
   it("STK Channel is deployed ", function()
@@ -10,20 +11,23 @@ contract("STKChannel",(accounts,done)=>
   });
 
   it("STK Channel user acccount is the first account", async() => {
-  const instance = await STKChannel.deployed();
-  const address = await instance.userAddress_.call();
+  const channel = await STKChannel.deployed();
+  const data  = await channel.channelData_.call();
+  const address = data[indexes.USER_ADDRESS];
   assert.equal(address.toString(),accounts[0],'accounts are not equal');
   })
 
   it('Second account is Recipient account', async() => {
-  const instance = await STKChannel.deployed();
-  const address  = await instance.recipientAddress_ .call();
+  const channel = await STKChannel.deployed();
+  const data  = await channel.channelData_.call();
+  const address  = data[indexes.RECIPIENT_ADDRESS];
   assert.equal(address.toString(),accounts[1],'accounts are not equal');
   })
 
   it('STK Channel expiry time is 10',async() => {
-  const instance = await STKChannel.deployed();
-  const timeout = await instance.timeout_.call();
+  const channel = await STKChannel.deployed();
+  const data  = await channel.channelData_.call();
+  const timeout = data[indexes.TIMEOUT];
   assert.equal(timeout.valueOf(),10,'values are not equal');
   });
 
@@ -33,7 +37,8 @@ contract("STKChannel",(accounts,done)=>
   await token.approve(channel.address,50);
   const allowance = await token.allowance(accounts[0],channel.address);
   await channel.deposit(50);
-  const balance = await channel.tokenBalance_.call();
+  const data  = await channel.channelData_.call();
+  const balance = data[indexes.TOKEN_BALANCE];
   assert.equal(balance.valueOf(),50,'the deposited values are not equal');
   });
 
@@ -56,7 +61,8 @@ contract("STKChannel",(accounts,done)=>
   it('Close the channel without a signature',async () => {
   const channel = await STKChannel.deployed();
   await channel.close(0,0,0);
-  const block = await channel.closedBlock_.call();
+  const data  = await channel.channelData_.call();
+  const block = data[indexes.CLOSED_BLOCK];
   assert.isAbove(block.valueOf(),0,'closed block is not greater than zero');
   });
 

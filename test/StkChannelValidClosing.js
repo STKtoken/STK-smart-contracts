@@ -3,6 +3,7 @@ const STKToken  = artifacts.require('./STKToken.sol')
 const sha3 = require('solidity-sha3').default
 var ethUtil = require('ethereumjs-util')
 const assertJump = require('./helpers/assertJump');
+var indexes = require('./helpers/ChannelDataIndexes');
 
 contract("STKChannelClosing", accounts => {
   const userAddress = accounts[0]
@@ -16,8 +17,8 @@ contract("STKChannelClosing", accounts => {
   const cost  = await  channel.deposit.estimateGas(50);
   console.log('estimated gas cost of depositing into the channel -- this neglects cost of approving tokens for transfer: ' + cost );
   await channel.deposit(50);
-
-  const balance = await channel.tokenBalance_.call();
+  const data  = await channel.channelData_.call();
+  const balance = data[indexes.TOKEN_BALANCE];
   assert.equal(balance.valueOf(),50,'the deposited values are not equal');
   });
 
@@ -38,24 +39,21 @@ contract("STKChannelClosing", accounts => {
         assertJump(error);
       }
   })
+
   it('user closes the channel with a valid signature', async () => {
       const nonce = 1;
       const amount = 0;
-      const address = STKChannel.address;
-      const hash = sha3(address,nonce,amount);
-      const signature = web3.eth.sign(web3.eth.accounts[1],hash);
-      console.log("before deployed signature is" + signature);
       const channel = await STKChannel.deployed()
-      console.log("before closed");
-      const cost  = await  channel.close.estimateGas(nonce,amount,signature);
-      console.log('estimated gas cost of closing the channel: ' + cost );
+      const hash = sha3(channel.address,nonce,amount);
+      const signature = web3.eth.sign(web3.eth.accounts[1],hash);
       await channel.close(nonce,amount,signature)
-      const block = await channel.closedBlock_.call()
-      console.log("after closed");
+      const data  = await channel.channelData_.call();
+      const block = data[indexes.CLOSED_BLOCK];
+      const address = data[indexes.CLOSING_ADDRESS];
       assert.isAbove(block.valueOf(),0,'The closed block should not be zero or below')
-      const addr = await channel.closingAddress_.call()
-      assert.equal(addr,userAddress,'the closing address and userAddress should match')
+      assert.equal(address,userAddress,'the closing address and userAddress should match')
   })
+
   it('Channel recipient contests the closing of the channel but the amount is above the deposited amount', async ()=>{
     const nonce = 2 ;
     const amount =10000 ;
@@ -92,9 +90,10 @@ contract("STKChannelClosing", accounts => {
     const cost  = await  channel.updateClosedChannel.estimateGas(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
     console.log('estimated gas cost of contesting the channel after closing: ' + cost );
     await channel.updateClosedChannel(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
-    const newAmount = await channel.amountOwed_.call();
+    const data  = await channel.channelData_.call();
+    const newAmount = data[indexes.AMOUNT_OWED];
     assert.equal(amount,newAmount,'Amount should be updated');
-    const newNonce = await channel.closedNonce_.call();
+    const newNonce = data[indexes.CLOSED_NONCE];
     assert.equal(nonce,newNonce,'Nonce should be updated');
   })
 
@@ -168,9 +167,10 @@ contract("STKChannelClosing", accounts => {
     let r = ethUtil.bufferToHex(signatureData.r)
     let s = ethUtil.bufferToHex(signatureData.s)
     await channel.updateClosedChannel(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
-    const newAmount = await channel.amountOwed_.call();
+    const data  = await channel.channelData_.call();
+    const newAmount = data[indexes.AMOUNT_OWED];
     assert.equal(amount,newAmount,'Amount should be updated');
-    const newNonce = await channel.closedNonce_.call();
+    const newNonce = data[indexes.CLOSED_NONCE];
     assert.equal(nonce,newNonce,'Nonce should be updated');
   })
 
@@ -190,21 +190,20 @@ contract("STKChannelClosing", accounts => {
   })
   it('Wait for block time and then try to settle ', async()=>
   {
-
     const channel = await STKChannel.deployed();
     const token =  await STKToken .deployed();
-    const blocksToWait = await channel.timeout_.call();
-    console.log('blocks to wait'+ blocksToWait.valueOf());
+    const data  = await channel.channelData_.call();
+    const blocksToWait = data[indexes.TIMEOUT];
+    console.log('blocks to wait: '+ blocksToWait.valueOf());
     for(i = 0;i< blocksToWait+2;i++)
     {
       var transaction = {from:web3.eth.accounts[0],to:web3.eth.accounts[1],gasPrice:1000000000,value:100};
       web3.eth.sendTransaction(transaction);
     }
-      const depositedTokens = await  channel.tokenBalance_.call();
-      console.log('Number of deposited tokens'+ depositedTokens);
+      const depositedTokens = data[indexes.TOKEN_BALANCE];
       const oldUserBalance = await token.balanceOf(userAddress);
       const oldStackBalance = await token.balanceOf(stackAddress);
-      const amountToBeTransferred = await channel.amountOwed_.call();
+      const amountToBeTransferred = data[indexes.AMOUNT_OWED];
       await channel.settle();
       const newUserBalance = await token.balanceOf(userAddress);
       const newStackBalance = await token.balanceOf(stackAddress);
