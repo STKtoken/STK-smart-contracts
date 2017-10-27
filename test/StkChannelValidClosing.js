@@ -40,12 +40,67 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
+  it('User tries to  close the channel with a self signed signature ', async () => {
+      const nonce = 1;
+      const amount = 2;
+      const address = STKChannel.address;
+      const hash = sha3(address,nonce,amount);
+      const signature = web3.eth.sign(web3.eth.accounts[0],hash);
+      const channel = await STKChannel.deployed()
+      try
+      {
+      await channel.close(nonce,amount,signature)
+      assert.fail('The signature should have caused an exception to be thrown');
+      }
+      catch(error)
+      {
+        assertJump(error);
+      }
+  })
+  it('Non-channel participant tries to close the channel with a valid signature', async () => {
+      const nonce = 1;
+      const amount = 2;
+      const address = STKChannel.address;
+      const hash = sha3(address,nonce,amount);
+      const signature = web3.eth.sign(web3.eth.accounts[1],hash);
+      const channel = await STKChannel.deployed()
+      try
+      {
+      await channel.close(nonce,amount,signature,{from:accounts[3]});
+      assert.fail('The sender should have caused an exception to be thrown');
+      }
+      catch(error)
+      {
+        assertJump(error);
+      }
+  })
+
+  it('user tries to close channel with a signature signed by someone else(invalid signature)', async () => {
+      const nonce = 1;
+      const amount = 2;
+      const address = STKChannel.address;
+      const hash = sha3(address,nonce,amount);
+      const signature = web3.eth.sign(web3.eth.accounts[2],hash);
+      const channel = await STKChannel.deployed()
+      try
+      {
+      await channel.close(nonce,amount,signature)
+      assert.fail('The signature should have caused an exception to be thrown');
+      }
+      catch(error)
+      {
+        assertJump(error);
+      }
+  })
+
   it('user closes the channel with a valid signature', async () => {
       const nonce = 1;
       const amount = 0;
       const channel = await STKChannel.deployed()
       const hash = sha3(channel.address,nonce,amount);
       const signature = web3.eth.sign(web3.eth.accounts[1],hash);
+      const cost = await  channel.close.estimateGas(nonce,amount,signature);
+      console.log('estimated gas cost of closing the channel: ' + cost );
       await channel.close(nonce,amount,signature)
       const data  = await channel.channelData_.call();
       const block = data[indexes.CLOSED_BLOCK];
@@ -204,6 +259,8 @@ contract("STKChannelClosing", accounts => {
       const oldUserBalance = await token.balanceOf(userAddress);
       const oldStackBalance = await token.balanceOf(stackAddress);
       const amountToBeTransferred = data[indexes.AMOUNT_OWED];
+      const cost = await  channel.settle.estimateGas();
+      console.log('estimated gas cost of settling the channel: ' + cost );
       await channel.settle();
       const newUserBalance = await token.balanceOf(userAddress);
       const newStackBalance = await token.balanceOf(stackAddress);
