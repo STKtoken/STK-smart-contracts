@@ -2,6 +2,7 @@ pragma solidity ^0.4.11;
 import "./Token.sol";
 
 contract StandardToken is Token {
+
     uint256 internal _total_supply;
     mapping (address => uint256) balances;
     mapping (address => mapping (address => uint256)) allowed;
