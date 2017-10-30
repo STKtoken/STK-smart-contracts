@@ -11,7 +11,7 @@ Machine-based, rapid creation of many tokens would not necessarily need these ex
 
 .*/
 
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.15;
 import "./StandardToken.sol";
 
 contract STKToken is StandardToken {
