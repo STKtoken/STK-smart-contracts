@@ -29,9 +29,9 @@ contract STKChannel
      * @param _expiryNumberOfBlocks The time in blocks of waiting after channel closing after which it can be settled.
      */
     function STKChannel(
-                address _to,
-                address _addressOfToken,
-                uint _expiryNumberOfBlocks)
+        address _to,
+        address _addressOfToken,
+        uint _expiryNumberOfBlocks)
         public
     {
         //cannot open a channel with yourself.
@@ -64,9 +64,25 @@ contract STKChannel
     * @param _signature The signed amount and nonce, It is in the form of keccak256(this,nonce,address).
     */
     function close(
-                uint _nonce,
-                uint _amount,
-                bytes _signature)
+        uint _nonce,
+        uint _amount,
+        bytes _signature)
+        external
+    {
+        channelData_.close(_nonce, _amount, _signature);
+        LogChannelClosed(block.number, msg.sender, _amount);
+    }
+
+    /**
+    * @notice Function to close the payment channel. If Signature is empty/malformed it WILL still close the channel.
+    * @param _nonce The nonce of the deposit. Used for avoiding replay attacks.
+    * @param _amount The amount of tokens claimed to be due to the receiver.
+    * @param _signature The signed amount and nonce, It is in the form of keccak256(this,nonce,address).
+    */
+    function close(
+        uint _nonce,
+        uint _amount,
+        bytes _signature)
         external
     {
         channelData_.close(_nonce, _amount, _signature);
@@ -82,11 +98,11 @@ contract STKChannel
     * @param _s Cryptographic param s derived from the signature.
     */
     function updateClosedChannel(
-                uint _nonce,
-                uint _amount,
-                uint8 _v,
-                bytes32 _r,
-                bytes32 _s)
+        uint _nonce,
+        uint _amount,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s)
         external
     {
         channelData_.updateClosedChannel(_nonce, _amount, _v, _r, _s);

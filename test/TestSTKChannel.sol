@@ -7,9 +7,9 @@ contract TestSTKChannel
   event Debug(bytes32 s);
   function testSha3Hash()
   {
-    uint nonce = 1;
-    uint amount = 0 ;
-    bytes32 msgHash  = keccak256(1234,nonce,amount);
-    Debug(msgHash);
+      uint nonce = 1;
+      uint amount = 0 ;
+      bytes32 msgHash  = keccak256(1234,nonce,amount);
+      Debug(msgHash);
   }
 }

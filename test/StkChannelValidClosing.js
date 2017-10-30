@@ -9,20 +9,20 @@ contract("STKChannelClosing", accounts => {
   const userAddress = accounts[0]
   const stackAddress = accounts[1]
 
-  it('Deposit 50 tokens to the stkchannel',async() => {
-   	const token = await STKToken .deployed();
-  const channel = await STKChannel.deployed();
-  await token.approve(channel.address,50);
-  const allowance = await token.allowance(accounts[0],channel.address);
-  const cost  = await  channel.deposit.estimateGas(50);
-  console.log('estimated gas cost of depositing into the channel -- this neglects cost of approving tokens for transfer: ' + cost );
-  await channel.deposit(50);
-  const data  = await channel.channelData_.call();
-  const balance = data[indexes.TOKEN_BALANCE];
-  assert.equal(balance.valueOf(),50,'the deposited values are not equal');
+  it('Deposit 50 tokens to the stkchannel',async()=> {
+      const token = await STKToken .deployed();
+      const channel = await STKChannel.deployed();
+      await token.approve(channel.address,50);
+      const allowance = await token.allowance(accounts[0],channel.address);
+      const cost  = await  channel.deposit.estimateGas(50);
+      console.log('estimated gas cost of depositing into the channel -- this neglects cost of approving tokens for transfer: ' + cost );
+      await channel.deposit(50);
+      const data  = await channel.channelData_.call();
+      const balance = data[indexes.TOKEN_BALANCE];
+      assert.equal(balance.valueOf(),50,'the deposited values are not equal');
   });
 
-  it('user tries to  close the channel with a valid signature but amount is above the deposited amount', async () => {
+  it('user tries to  close the channel with a valid signature but amount is above the deposited amount',async()=> {
       const nonce = 1;
       const amount = 10000;
       const address = STKChannel.address;
@@ -40,7 +40,7 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('User tries to  close the channel with a self signed signature ', async () => {
+  it('User tries to  close the channel with a self signed signature ',async()=> {
       const nonce = 1;
       const amount = 2;
       const address = STKChannel.address;
@@ -57,7 +57,8 @@ contract("STKChannelClosing", accounts => {
         assertJump(error);
       }
   })
-  it('Non-channel participant tries to close the channel with a valid signature', async () => {
+
+  it('Non-channel participant tries to close the channel with a valid signature',async()=> {
       const nonce = 1;
       const amount = 2;
       const address = STKChannel.address;
@@ -75,7 +76,7 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('user tries to close channel with a signature signed by someone else(invalid signature)', async () => {
+  it('user tries to close channel with a signature signed by someone else(invalid signature)',async()=> {
       const nonce = 1;
       const amount = 2;
       const address = STKChannel.address;
@@ -93,7 +94,7 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('user closes the channel with a valid signature', async () => {
+  it('user closes the channel with a valid signature',async()=> {
       const nonce = 1;
       const amount = 0;
       const channel = await STKChannel.deployed()
@@ -109,124 +110,126 @@ contract("STKChannelClosing", accounts => {
       assert.equal(address,userAddress,'the closing address and userAddress should match')
   })
 
-  it('Channel recipient contests the closing of the channel but the amount is above the deposited amount', async ()=>{
-    const nonce = 2 ;
-    const amount =10000 ;
-    const address = STKChannel.address ;
-    const channel = await STKChannel.deployed()
-    const hash = sha3(address,nonce,amount);
-    const signature = web3.eth.sign(web3.eth.accounts[0],hash);
-    signatureData = ethUtil.fromRpcSig(signature)
-    let v = ethUtil.bufferToHex(signatureData.v)
-    let r = ethUtil.bufferToHex(signatureData.r)
-    let s = ethUtil.bufferToHex(signatureData.s)
-    try
-    {
-    await channel.updateClosedChannel(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
-    assert.fail('This should have thrown due to incorrect amount ');
-    }
+  it('Channel recipient contests the closing of the channel but the amount is above the deposited amount',async()=>{
+      const nonce = 2 ;
+      const amount =10000 ;
+      const address = STKChannel.address ;
+      const channel = await STKChannel.deployed()
+      const hash = sha3(address,nonce,amount);
+      const signature = web3.eth.sign(web3.eth.accounts[0],hash);
+      signatureData = ethUtil.fromRpcSig(signature)
+      let v = ethUtil.bufferToHex(signatureData.v)
+      let r = ethUtil.bufferToHex(signatureData.r)
+      let s = ethUtil.bufferToHex(signatureData.s)
+      try
+      {
+          await channel.updateClosedChannel(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
+          assert.fail('This should have thrown due to incorrect amount ');
+      }
     catch(error)
     {
-      assertJump(error);
+         assertJump(error);
     }
   })
 
-  it('Channel recipient contests the closing of the channel ', async ()=>{
-    const nonce = 2 ;
-    const amount =2 ;
-    const address = STKChannel.address ;
-    const channel = await STKChannel.deployed()
-    const hash = sha3(address,nonce,amount);
-    const signature = web3.eth.sign(web3.eth.accounts[0],hash);
-    signatureData = ethUtil.fromRpcSig(signature)
-    let v = ethUtil.bufferToHex(signatureData.v)
-    let r = ethUtil.bufferToHex(signatureData.r)
-    let s = ethUtil.bufferToHex(signatureData.s)
-    const cost  = await  channel.updateClosedChannel.estimateGas(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
-    console.log('estimated gas cost of contesting the channel after closing: ' + cost );
-    await channel.updateClosedChannel(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
-    const data  = await channel.channelData_.call();
-    const newAmount = data[indexes.AMOUNT_OWED];
-    assert.equal(amount,newAmount,'Amount should be updated');
-    const newNonce = data[indexes.CLOSED_NONCE];
-    assert.equal(nonce,newNonce,'Nonce should be updated');
+  it('Channel recipient contests the closing of the channel ',async()=>{
+      const nonce = 2 ;
+      const amount =2 ;
+      const address = STKChannel.address ;
+      const channel = await STKChannel.deployed()
+      const hash = sha3(address,nonce,amount);
+      const signature = web3.eth.sign(web3.eth.accounts[0],hash);
+      signatureData = ethUtil.fromRpcSig(signature)
+      let v = ethUtil.bufferToHex(signatureData.v)
+      let r = ethUtil.bufferToHex(signatureData.r)
+      let s = ethUtil.bufferToHex(signatureData.s)
+      const cost  = await  channel.updateClosedChannel.estimateGas(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
+      console.log('estimated gas cost of contesting the channel after closing: ' + cost );
+      await channel.updateClosedChannel(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
+      const data  = await channel.channelData_.call();
+      const newAmount = data[indexes.AMOUNT_OWED];
+      assert.equal(amount,newAmount,'Amount should be updated');
+      const newNonce = data[indexes.CLOSED_NONCE];
+      assert.equal(nonce,newNonce,'Nonce should be updated');
   })
 
   it('Should not be able to close the channel after it has already been closed',async()=>
   {
-    const channel = await STKChannel.deployed()
+      const channel = await STKChannel.deployed()
 
-    try{
-      await channel.close(0,0,0);
-      assert.fail('Closing should have thrown an error');
-    }
-    catch(error)
-    {
-      assertJump(error);
-    }
+      try
+      {
+          await channel.close(0,0,0);
+          assert.fail('Closing should have thrown an error');
+     }
+     catch(error)
+     {
+         assertJump(error);
+     }
   })
 
-  it('Closing Address should not be able to update the channel once closed ', async() =>{
-    const nonce = 3 ;
-    const amount =3 ;
-    const address = STKChannel.address ;
-    const channel = await STKChannel.deployed()
-    const hash = sha3(address,nonce,amount);
-    const signature = web3.eth.sign(web3.eth.accounts[1],hash);
-    signatureData = ethUtil.fromRpcSig(signature)
-    let v = ethUtil.bufferToHex(signatureData.v)
-    let r = ethUtil.bufferToHex(signatureData.r)
-    let s = ethUtil.bufferToHex(signatureData.s)
-    try {
-    await channel.updateClosedChannel(nonce,amount,v,r,s,{from:web3.eth.accounts[0]});
-    assert.fail('Updating channel should have thrown');
-    }
-    catch(error)
-    {
-      assertJump(error);
-    }
+  it('Closing Address should not be able to update the channel once closed ',async() =>{
+      const nonce = 3 ;
+      const amount =3 ;
+      const address = STKChannel.address ;
+      const channel = await STKChannel.deployed()
+      const hash = sha3(address,nonce,amount);
+      const signature = web3.eth.sign(web3.eth.accounts[1],hash);
+      signatureData = ethUtil.fromRpcSig(signature)
+      let v = ethUtil.bufferToHex(signatureData.v)
+      let r = ethUtil.bufferToHex(signatureData.r)
+      let s = ethUtil.bufferToHex(signatureData.s)
+      try
+      {
+          await channel.updateClosedChannel(nonce,amount,v,r,s,{from:web3.eth.accounts[0]});
+          assert.fail('Updating channel should have thrown');
+      }
+      catch(error)
+      {
+          assertJump(error);
+      }
   })
 
-  it('Should not be able to update channel with lower nonce value ', async ()=>{
-    const nonce = 1 ;
-    const amount =3 ;
-    const address = STKChannel.address ;
-    const channel = await STKChannel.deployed()
-    const hash = sha3(address,nonce,amount);
-    const signature = web3.eth.sign(web3.eth.accounts[0],hash);
-    signatureData = ethUtil.fromRpcSig(signature)
-    let v = ethUtil.bufferToHex(signatureData.v)
-    let r = ethUtil.bufferToHex(signatureData.r)
-    let s = ethUtil.bufferToHex(signatureData.s)
+  it('Should not be able to update channel with lower nonce value ',async()=>{
+      const nonce = 1 ;
+      const amount =3 ;
+      const address = STKChannel.address ;
+      const channel = await STKChannel.deployed()
+      const hash = sha3(address,nonce,amount);
+      const signature = web3.eth.sign(web3.eth.accounts[0],hash);
+      signatureData = ethUtil.fromRpcSig(signature)
+      let v = ethUtil.bufferToHex(signatureData.v)
+      let r = ethUtil.bufferToHex(signatureData.r)
+      let s = ethUtil.bufferToHex(signatureData.s)
     try
     {
-      await channel.updateClosedChannel(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
-      assert.fail('The channel should not have updated');
+        await channel.updateClosedChannel(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
+        assert.fail('The channel should not have updated');
     }
     catch(error)
     {
-      assertJump(error);
+        assertJump(error);
     }
   })
 
-  it('The non-closing address should be able to update the state of the channel with a higher nonce', async()=>
+  it('The non-closing address should be able to update the state of the channel with a higher nonce',async()=>
   {
-    const nonce = 3 ;
-    const amount =3 ;
-    const address = STKChannel.address ;
-    const channel = await STKChannel.deployed()
-    const hash = sha3(address,nonce,amount);
-    const signature = web3.eth.sign(web3.eth.accounts[0],hash);
-    signatureData = ethUtil.fromRpcSig(signature)
-    let v = ethUtil.bufferToHex(signatureData.v)
-    let r = ethUtil.bufferToHex(signatureData.r)
-    let s = ethUtil.bufferToHex(signatureData.s)
-    await channel.updateClosedChannel(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
-    const data  = await channel.channelData_.call();
-    const newAmount = data[indexes.AMOUNT_OWED];
-    assert.equal(amount,newAmount,'Amount should be updated');
-    const newNonce = data[indexes.CLOSED_NONCE];
-    assert.equal(nonce,newNonce,'Nonce should be updated');
+      const nonce = 3 ;
+      const amount =3 ;
+      const address = STKChannel.address ;
+      const channel = await STKChannel.deployed()
+      const hash = sha3(address,nonce,amount);
+      const signature = web3.eth.sign(web3.eth.accounts[0],hash);
+      signatureData = ethUtil.fromRpcSig(signature)
+      let v = ethUtil.bufferToHex(signatureData.v)
+      let r = ethUtil.bufferToHex(signatureData.r)
+      let s = ethUtil.bufferToHex(signatureData.s)
+      await channel.updateClosedChannel(nonce,amount,v,r,s,{from:web3.eth.accounts[1]});
+      const data  = await channel.channelData_.call();
+      const newAmount = data[indexes.AMOUNT_OWED];
+      assert.equal(amount,newAmount,'Amount should be updated');
+      const newNonce = data[indexes.CLOSED_NONCE];
+      assert.equal(nonce,newNonce,'Nonce should be updated');
   })
 
   it('try to settle the address before the time period is expired',async()=>
@@ -235,25 +238,26 @@ contract("STKChannelClosing", accounts => {
       const channel = await STKChannel.deployed();
       try
       {
-        await channel.settle();
-        assert.fail('This should have thrown');
+          await channel.settle();
+          assert.fail('This should have thrown');
       }
       catch(error)
       {
-        assertJump(error);
+          assertJump(error);
       }
   })
-  it('Wait for block time and then try to settle ', async()=>
+
+  it('Wait for block time and then try to settle ',async()=>
   {
-    const channel = await STKChannel.deployed();
-    const token =  await STKToken .deployed();
-    const data  = await channel.channelData_.call();
-    const blocksToWait = data[indexes.TIMEOUT];
-    console.log('blocks to wait: '+ blocksToWait.valueOf());
-    for(i = 0;i< blocksToWait+2;i++)
-    {
-      var transaction = {from:web3.eth.accounts[0],to:web3.eth.accounts[1],gasPrice:1000000000,value:100};
-      web3.eth.sendTransaction(transaction);
+     const channel = await STKChannel.deployed();
+     const token =  await STKToken .deployed();
+     const data  = await channel.channelData_.call();
+     const blocksToWait = data[indexes.TIMEOUT];
+     console.log('blocks to wait: '+ blocksToWait.valueOf());
+     for(i = 0;i< blocksToWait+2;i++)
+     {
+         var transaction = {from:web3.eth.accounts[0],to:web3.eth.accounts[1],gasPrice:1000000000,value:100};
+         web3.eth.sendTransaction(transaction);
     }
       const depositedTokens = data[indexes.TOKEN_BALANCE];
       const oldUserBalance = await token.balanceOf(userAddress);

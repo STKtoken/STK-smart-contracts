@@ -6,9 +6,9 @@ contract TestSTKToken
 {
   function testInitialBalance()
   {
-  uint expectedBalance = 1000000000 ;
-  STKToken token = STKToken(DeployedAddresses.STKToken());
-  Assert.equal(token.totalSupply(),expectedBalance,'The initial supply should be 1 billion');
+      uint expectedBalance = 1000000000 ;
+      STKToken token = STKToken(DeployedAddresses.STKToken());
+      Assert.equal(token.totalSupply(),expectedBalance,'The initial supply should be 1 billion');
   }
 
 }
