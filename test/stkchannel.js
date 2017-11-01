@@ -42,7 +42,7 @@ contract("STKChannel",(accounts,done)=>
       assert.equal(balance.valueOf(),50,'the deposited values are not equal');
   });
 
-  it('Non-userAddress attempts to deposit into account',async() => {
+  it('Should fail when non-user address attempts to deposit into account',async() => {
       const token = await STKToken.deployed();
       const channel = await STKChannel.deployed();
       await token.transfer(accounts[2],50);
@@ -65,5 +65,5 @@ contract("STKChannel",(accounts,done)=>
       const block = data[indexes.CLOSED_BLOCK];
       assert.isAbove(block.valueOf(),0,'closed block is not greater than zero');
   });
-  
+
 });
