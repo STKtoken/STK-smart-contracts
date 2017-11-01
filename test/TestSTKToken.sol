@@ -8,7 +8,7 @@ contract TestSTKToken
   {
       uint expectedBalance = 1000000000 ;
       STKToken token = STKToken(DeployedAddresses.STKToken());
-      Assert.equal(token.totalSupply(),expectedBalance,'The initial supply should be 1 billion');
+      Assert.equal(token.totalSupply(),expectedBalance,'Should have a supply of  1 billion');
   }
 
 }

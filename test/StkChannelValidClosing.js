@@ -9,7 +9,7 @@ contract("STKChannelClosing", accounts => {
   const userAddress = accounts[0]
   const stackAddress = accounts[1]
 
-  it('Deposit 50 tokens to the stkchannel',async()=> {
+  it('Should deposit 50 tokens to the stkchannel',async()=> {
       const token = await STKToken .deployed();
       const channel = await STKChannel.deployed();
       await token.approve(channel.address,50);
@@ -22,7 +22,7 @@ contract("STKChannelClosing", accounts => {
       assert.equal(balance.valueOf(),50,'the deposited values are not equal');
   });
 
-  it('user tries to  close the channel with a valid signature but amount is above the deposited amount',async()=> {
+  it('Should fail when user tries to  close the channel with a valid signature but amount is above the deposited amount',async()=> {
       const nonce = 1;
       const amount = 10000;
       const address = STKChannel.address;
@@ -35,9 +35,8 @@ contract("STKChannelClosing", accounts => {
       let s = ethUtil.bufferToHex(signatureData.s)
       try
       {
-
-      await channel.close(nonce,amount,v,r,s)
-      assert.fail('The amount should have caused an exception to be thrown');
+        await channel.close(nonce,amount,v,r,s)
+        assert.fail('The amount should have caused an exception to be thrown');
       }
       catch(error)
       {
@@ -45,7 +44,7 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('User tries to  close the channel with a self signed signature',async()=> {
+  it('Should fail when user tries to close the channel with a self signed signature',async()=> {
       const nonce = 1;
       const amount = 2;
       const address = STKChannel.address;
@@ -58,8 +57,8 @@ contract("STKChannelClosing", accounts => {
       const channel = await STKChannel.deployed()
       try
       {
-      await channel.close(nonce,amount,v,r,s)
-      assert.fail('The signature should have caused an exception to be thrown');
+        await channel.close(nonce,amount,v,r,s)
+        assert.fail('The signature should have caused an exception to be thrown');
       }
       catch(error)
       {
@@ -67,7 +66,7 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('Non-channel participant tries to close the channel with a valid signature',async()=> {
+  it('Should fail when non-channel participant tries to close the channel with a valid signature',async()=> {
       const nonce = 1;
       const amount = 2;
       const address = STKChannel.address;
@@ -80,8 +79,8 @@ contract("STKChannelClosing", accounts => {
       let s = ethUtil.bufferToHex(signatureData.s)
       try
       {
-      await channel.close(nonce,amount,v,r,s,{from:accounts[3]});
-      assert.fail('The sender should have caused an exception to be thrown');
+        await channel.close(nonce,amount,v,r,s,{from:accounts[3]});
+        assert.fail('The sender should have caused an exception to be thrown');
       }
       catch(error)
       {
@@ -89,7 +88,7 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('user tries to close channel with a signature signed by someone else(invalid signature)',async()=> {
+  it('Should fail when user tries to close channel with a signature signed by someone else(invalid signature)',async()=> {
       const nonce = 1;
       const amount = 2;
       const address = STKChannel.address;
@@ -102,8 +101,8 @@ contract("STKChannelClosing", accounts => {
       const channel = await STKChannel.deployed()
       try
       {
-      await channel.close(nonce,amount,v,r,s)
-      assert.fail('The signature should have caused an exception to be thrown');
+        await channel.close(nonce,amount,v,r,s)
+        assert.fail('The signature should have caused an exception to be thrown');
       }
       catch(error)
       {
@@ -111,7 +110,8 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('user closes the channel with a valid signature',async()=> {
+  it('Should allow user to close the channel with a valid signature',async()=> {
+
       const nonce = 1;
       const amount = 0;
       const channel = await STKChannel.deployed()
@@ -121,8 +121,10 @@ contract("STKChannelClosing", accounts => {
       let v = ethUtil.bufferToHex(signatureData.v)
       let r = ethUtil.bufferToHex(signatureData.r)
       let s = ethUtil.bufferToHex(signatureData.s)
+
       const cost = await  channel.close.estimateGas(nonce,amount,v,r,s);
       console.log('estimated gas cost of closing the channel: ' + cost );
+
       await channel.close(nonce,amount,v,r,s)
       const data  = await channel.channelData_.call();
       const block = data[indexes.CLOSED_BLOCK];
@@ -131,7 +133,7 @@ contract("STKChannelClosing", accounts => {
       assert.equal(address,userAddress,'the closing address and userAddress should match')
   })
 
-  it('Channel recipient contests the closing of the channel but the amount is above the deposited amount',async()=>{
+  it('Should fail when Channel recipient contests the closing of the channel but the amount is above the deposited amount',async()=>{
       const nonce = 2 ;
       const amount =10000 ;
       const address = STKChannel.address ;
@@ -153,7 +155,7 @@ contract("STKChannelClosing", accounts => {
     }
   })
 
-  it('Channel recipient contests the closing of the channel ',async()=>{
+  it('Should allow channel recipient to contest the closing of the channel ',async()=>{
       const nonce = 2 ;
       const amount =2 ;
       const address = STKChannel.address ;
@@ -189,7 +191,7 @@ contract("STKChannelClosing", accounts => {
      }
   })
 
-  it('Closing Address should not be able to update the channel once closed ',async() =>{
+  it('Should not be able to update the channel once closed as closing address',async() =>{
       const nonce = 3 ;
       const amount =3 ;
       const address = STKChannel.address ;
@@ -233,7 +235,7 @@ contract("STKChannelClosing", accounts => {
     }
   })
 
-  it('The non-closing address should be able to update the state of the channel with a higher nonce',async()=>
+  it('Should be able to update the state of the channel with a higher nonce as non-closing address',async()=>
   {
       const nonce = 3 ;
       const amount =3 ;
@@ -253,7 +255,7 @@ contract("STKChannelClosing", accounts => {
       assert.equal(nonce,newNonce,'Nonce should be updated');
   })
 
-  it('try to settle the address before the time period is expired',async()=>
+  it('Should fail when we try to settle the address before the time period is expired',async()=>
   {
       const address = STKChannel.address ;
       const channel = await STKChannel.deployed();
@@ -268,7 +270,7 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('Wait for block time and then try to settle ',async()=>
+  it('Should settle when user waits for block time and then tries to settle ',async()=>
   {
      const channel = await STKChannel.deployed();
      const token =  await STKToken .deployed();
@@ -279,7 +281,7 @@ contract("STKChannelClosing", accounts => {
      {
          var transaction = {from:web3.eth.accounts[0],to:web3.eth.accounts[1],gasPrice:1000000000,value:100};
          web3.eth.sendTransaction(transaction);
-    }
+     }
       const depositedTokens = data[indexes.TOKEN_BALANCE];
       const oldUserBalance = await token.balanceOf(userAddress);
       const oldStackBalance = await token.balanceOf(stackAddress);

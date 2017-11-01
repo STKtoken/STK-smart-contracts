@@ -10,28 +10,28 @@ contract("STKChannel",(accounts,done)=>
       return STKChannel.deployed().then(done).catch(done);
   });
 
-  it("STK Channel user acccount is the first account",async() => {
+  it("Should have STK channel user acccount as the first account",async() => {
       const channel = await STKChannel.deployed();
       const data  = await channel.channelData_.call();
       const address = data[indexes.USER_ADDRESS];
       assert.equal(address.toString(),accounts[0],'accounts are not equal');
   })
 
-  it('Second account is Recipient account',async() => {
+  it('Should have second account as Recipient account',async() => {
       const channel = await STKChannel.deployed();
       const data  = await channel.channelData_.call();
       const address  = data[indexes.RECIPIENT_ADDRESS];
       assert.equal(address.toString(),accounts[1],'accounts are not equal');
   })
 
-  it('STK Channel expiry time is 10',async() => {
+  it('Should have Channel expiry time as 10',async() => {
       const channel = await STKChannel.deployed();
       const data  = await channel.channelData_.call();
       const timeout = data[indexes.TIMEOUT];
       assert.equal(timeout.valueOf(),10,'values are not equal');
   });
 
-  it('Deposit 50 tokens to the stkchannel',async() => {
+  it('Should Deposit 50 tokens to the stkchannel',async() => {
       const token = await STKToken .deployed();
       const channel = await STKChannel.deployed();
       await token.approve(channel.address,50);
@@ -58,20 +58,12 @@ contract("STKChannel",(accounts,done)=>
       }
   });
 
-  it('Close the channel without a signature',async () => {
+  it('Should close the channel without a signature',async () => {
       const channel = await STKChannel.deployed();
       await channel.closeWithoutSignature();
       const data  = await channel.channelData_.call();
       const block = data[indexes.CLOSED_BLOCK];
       assert.isAbove(block.valueOf(),0,'closed block is not greater than zero');
   });
-
-  it('Basic sha3 test',async() => {
-      const nonce = 1;
-      const amount = 0;
-      const address = STKChannel.address;
-      const sig = sha3(address,nonce,amount);
-      const channel = await STKChannel.deployed();
-      assert.equal(sig,sha3(channel.address,nonce,amount),'the sigs are not equal');
-  });
+  
 });
