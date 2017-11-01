@@ -6,7 +6,8 @@ const assertJump = require('./helpers/assertJump');
 const indexes = require('./helpers/channelDataIndexes');
 const closingHelper = require('./helpers/channelClosingHelper')
 
-contract("STKChannelClosing", accounts => {
+contract("STKChannelClosing", accounts =>
+{
   const userAddress = accounts[0]
   const stackAddress = accounts[1]
 
@@ -26,7 +27,8 @@ contract("STKChannelClosing", accounts => {
       assert.equal(balance.valueOf(),50,'the deposited values are not equal');
   });
 
-  it('Should fail when user tries to  close the channel with a valid signature but amount is above the deposited amount',async()=> {
+  it('Should fail when user tries to  close the channel with a valid signature but amount is above the deposited amount',async()=>
+   {
       const nonce = 1;
       const amount = 10000;
       const channel = await STKChannel.deployed();
@@ -42,7 +44,8 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('Should fail when user tries to close the channel with a self signed signature',async()=> {
+  it('Should fail when user tries to close the channel with a self signed signature',async()=>
+  {
       const nonce = 1;
       const amount = 2;
       const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,web3.eth.accounts[0]);
@@ -58,7 +61,8 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('Should fail when non-channel participant tries to close the channel with a valid signature',async()=> {
+  it('Should fail when non-channel participant tries to close the channel with a valid signature',async()=>
+  {
       const nonce = 1;
       const amount = 2;
       const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,web3.eth.accounts[1]);
@@ -74,7 +78,8 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('Should fail when user tries to close channel with a signature signed by someone else (invalid signature)',async()=> {
+  it('Should fail when user tries to close channel with a signature signed by someone else (invalid signature)',async()=>
+  {
       const nonce = 1;
       const amount = 2;
       const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,web3.eth.accounts[2]);
@@ -90,7 +95,8 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('Should allow user to close the channel with a valid signature',async()=> {
+  it('Should allow user to close the channel with a valid signature',async()=>
+  {
 
       const nonce = 1;
       const amount = 0;
@@ -109,7 +115,8 @@ contract("STKChannelClosing", accounts => {
       assert.equal(address,userAddress,'the closing address and userAddress should match')
   })
 
-  it('Should fail when Channel recipient contests the closing of the channel but the amount is above the deposited amount',async()=>{
+  it('Should fail when Channel recipient contests the closing of the channel but the amount is above the deposited amount',async()=>
+  {
       const nonce = 2 ;
       const amount =10000 ;
       const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,web3.eth.accounts[0]);
@@ -126,7 +133,8 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('Should allow channel recipient to contest the closing of the channel ',async()=>{
+  it('Should allow channel recipient to contest the closing of the channel ',async()=>
+  {
       const nonce = 2 ;
       const amount = 2 ;
       const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,web3.eth.accounts[0]);
@@ -158,7 +166,8 @@ contract("STKChannelClosing", accounts => {
      }
   })
 
-  it('Should not be able to update the channel once closed as closing address',async() =>{
+  it('Should not be able to update the channel once closed as closing address',async() =>
+  {
       const nonce = 3;
       const amount = 3;
       const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,web3.eth.accounts[1]);
@@ -175,7 +184,8 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('Should not be able to update channel with lower nonce value ',async()=>{
+  it('Should not be able to update channel with lower nonce value ',async()=>
+  {
       const nonce = 1 ;
       const amount =3 ;
       const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,web3.eth.accounts[0]);
