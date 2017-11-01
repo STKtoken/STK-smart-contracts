@@ -36,5 +36,4 @@ contract STKToken is StandardToken {
         symbol = _tokenSymbol;                               // Set the symbol for display purposes
     }
 
-    function () public { revert(); }
 }

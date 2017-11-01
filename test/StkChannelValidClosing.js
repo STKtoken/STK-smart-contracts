@@ -4,7 +4,6 @@ const sha3 = require('solidity-sha3').default
 var ethUtil = require('ethereumjs-util')
 const assertJump = require('./helpers/assertJump');
 var indexes = require('./helpers/ChannelDataIndexes');
-var signatureHelper = require('./helpers/signatureHelper.js');
 
 contract("STKChannelClosing", accounts => {
   const userAddress = accounts[0]
@@ -52,10 +51,10 @@ contract("STKChannelClosing", accounts => {
       const address = STKChannel.address;
       const hash = sha3(address,nonce,amount);
       const signature = web3.eth.sign(web3.eth.accounts[0],hash);
-      const params = signatureHelper.getParameters(signature);
-      const v = params.v;
-      const r = params.r;
-      const s = params.s;
+      const signatureData = ethUtil.fromRpcSig(signature);
+      let v = ethUtil.bufferToHex(signatureData.v)
+      let r = ethUtil.bufferToHex(signatureData.r)
+      let s = ethUtil.bufferToHex(signatureData.s)
       const channel = await STKChannel.deployed()
       try
       {
