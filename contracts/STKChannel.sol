@@ -58,7 +58,7 @@ contract STKChannel
     }
 
     /**
-    * @notice Function to close the payment channel. If Signature is empty/malformed it WILL still close the channel.
+    * @notice Function to close the payment channel. 
     * @param _nonce The nonce of the deposit. Used for avoiding replay attacks.
     * @param _amount The amount of tokens claimed to be due to the receiver.
     * @param _v Cryptographic param v derived from the signature.
