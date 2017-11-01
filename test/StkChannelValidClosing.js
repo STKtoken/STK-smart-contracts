@@ -4,6 +4,7 @@ const sha3 = require('solidity-sha3').default
 var ethUtil = require('ethereumjs-util')
 const assertJump = require('./helpers/assertJump');
 var indexes = require('./helpers/ChannelDataIndexes');
+var signatureHelper = require('./helpers/signatureHelper.js');
 
 contract("STKChannelClosing", accounts => {
   const userAddress = accounts[0]
@@ -17,7 +18,7 @@ contract("STKChannelClosing", accounts => {
       const cost  = await  channel.deposit.estimateGas(50);
       console.log('estimated gas cost of depositing into the channel -- this neglects cost of approving tokens for transfer: ' + cost );
       await channel.deposit(50);
-      const data  = await channel.channelData_.call();
+      const data = await channel.channelData_.call();
       const balance = data[indexes.TOKEN_BALANCE];
       assert.equal(balance.valueOf(),50,'the deposited values are not equal');
   });
@@ -28,10 +29,15 @@ contract("STKChannelClosing", accounts => {
       const address = STKChannel.address;
       const hash = sha3(address,nonce,amount);
       const signature = web3.eth.sign(web3.eth.accounts[1],hash);
+      const signatureData = ethUtil.fromRpcSig(signature);
       const channel = await STKChannel.deployed()
+      let v = ethUtil.bufferToHex(signatureData.v)
+      let r = ethUtil.bufferToHex(signatureData.r)
+      let s = ethUtil.bufferToHex(signatureData.s)
       try
       {
-      await channel.close(nonce,amount,signature)
+
+      await channel.close(nonce,amount,v,r,s)
       assert.fail('The amount should have caused an exception to be thrown');
       }
       catch(error)
@@ -40,16 +46,20 @@ contract("STKChannelClosing", accounts => {
       }
   })
 
-  it('User tries to  close the channel with a self signed signature ',async()=> {
+  it('User tries to  close the channel with a self signed signature',async()=> {
       const nonce = 1;
       const amount = 2;
       const address = STKChannel.address;
       const hash = sha3(address,nonce,amount);
       const signature = web3.eth.sign(web3.eth.accounts[0],hash);
+      const params = signatureHelper.getParameters(signature);
+      const v = params.v;
+      const r = params.r;
+      const s = params.s;
       const channel = await STKChannel.deployed()
       try
       {
-      await channel.close(nonce,amount,signature)
+      await channel.close(nonce,amount,v,r,s)
       assert.fail('The signature should have caused an exception to be thrown');
       }
       catch(error)
@@ -65,9 +75,13 @@ contract("STKChannelClosing", accounts => {
       const hash = sha3(address,nonce,amount);
       const signature = web3.eth.sign(web3.eth.accounts[1],hash);
       const channel = await STKChannel.deployed()
+      const signatureData = ethUtil.fromRpcSig(signature);
+      let v = ethUtil.bufferToHex(signatureData.v)
+      let r = ethUtil.bufferToHex(signatureData.r)
+      let s = ethUtil.bufferToHex(signatureData.s)
       try
       {
-      await channel.close(nonce,amount,signature,{from:accounts[3]});
+      await channel.close(nonce,amount,v,r,s,{from:accounts[3]});
       assert.fail('The sender should have caused an exception to be thrown');
       }
       catch(error)
@@ -82,10 +96,14 @@ contract("STKChannelClosing", accounts => {
       const address = STKChannel.address;
       const hash = sha3(address,nonce,amount);
       const signature = web3.eth.sign(web3.eth.accounts[2],hash);
+      const signatureData = ethUtil.fromRpcSig(signature);
+      let v = ethUtil.bufferToHex(signatureData.v)
+      let r = ethUtil.bufferToHex(signatureData.r)
+      let s = ethUtil.bufferToHex(signatureData.s)
       const channel = await STKChannel.deployed()
       try
       {
-      await channel.close(nonce,amount,signature)
+      await channel.close(nonce,amount,v,r,s)
       assert.fail('The signature should have caused an exception to be thrown');
       }
       catch(error)
@@ -100,9 +118,13 @@ contract("STKChannelClosing", accounts => {
       const channel = await STKChannel.deployed()
       const hash = sha3(channel.address,nonce,amount);
       const signature = web3.eth.sign(web3.eth.accounts[1],hash);
-      const cost = await  channel.close.estimateGas(nonce,amount,signature);
+      const signatureData = ethUtil.fromRpcSig(signature)
+      let v = ethUtil.bufferToHex(signatureData.v)
+      let r = ethUtil.bufferToHex(signatureData.r)
+      let s = ethUtil.bufferToHex(signatureData.s)
+      const cost = await  channel.close.estimateGas(nonce,amount,v,r,s);
       console.log('estimated gas cost of closing the channel: ' + cost );
-      await channel.close(nonce,amount,signature)
+      await channel.close(nonce,amount,v,r,s)
       const data  = await channel.channelData_.call();
       const block = data[indexes.CLOSED_BLOCK];
       const address = data[indexes.CLOSING_ADDRESS];
@@ -139,7 +161,7 @@ contract("STKChannelClosing", accounts => {
       const channel = await STKChannel.deployed()
       const hash = sha3(address,nonce,amount);
       const signature = web3.eth.sign(web3.eth.accounts[0],hash);
-      signatureData = ethUtil.fromRpcSig(signature)
+      const signatureData = ethUtil.fromRpcSig(signature)
       let v = ethUtil.bufferToHex(signatureData.v)
       let r = ethUtil.bufferToHex(signatureData.r)
       let s = ethUtil.bufferToHex(signatureData.s)
@@ -159,7 +181,7 @@ contract("STKChannelClosing", accounts => {
 
       try
       {
-          await channel.close(0,0,0);
+          await channel.closeWithoutSignature();
           assert.fail('Closing should have thrown an error');
      }
      catch(error)
@@ -254,7 +276,7 @@ contract("STKChannelClosing", accounts => {
      const data  = await channel.channelData_.call();
      const blocksToWait = data[indexes.TIMEOUT];
      console.log('blocks to wait: '+ blocksToWait.valueOf());
-     for(i = 0;i< blocksToWait+2;i++)
+     for(i = 0;i<blocksToWait;i++)
      {
          var transaction = {from:web3.eth.accounts[0],to:web3.eth.accounts[1],gasPrice:1000000000,value:100};
          web3.eth.sendTransaction(transaction);

@@ -60,7 +60,7 @@ contract("STKChannel",(accounts,done)=>
 
   it('Close the channel without a signature',async () => {
       const channel = await STKChannel.deployed();
-      await channel.close(0,0,0);
+      await channel.closeWithoutSignature();
       const data  = await channel.channelData_.call();
       const block = data[indexes.CLOSED_BLOCK];
       assert.isAbove(block.valueOf(),0,'closed block is not greater than zero');

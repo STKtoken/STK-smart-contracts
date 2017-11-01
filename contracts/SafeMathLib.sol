@@ -12,15 +12,18 @@ pragma solidity ^0.4.15;
  */
 library SafeMathLib {
 
-  function times(uint a, uint b) returns (uint) {
-      uint c = a * b;
-      assert(a == 0 || c / a == b);
-      return c;
+  function times(uint a, uint b)
+     public
+     returns (uint) {
+        uint c = a * b;
+        assert(a == 0 || c / a == b);
+        return c;
   }
 
-  function minus(uint a, uint b) returns (uint) {
-      assert(b <= a);
-      return a - b;
+  function minus(uint a, uint b)
+      returns (uint) {
+          assert(b <= a);
+          return a - b;
   }
 
   function plus(uint a, uint b) returns (uint) {
@@ -28,5 +31,4 @@ library SafeMathLib {
       assert(c>=a);
       return c;
   }
-
 }

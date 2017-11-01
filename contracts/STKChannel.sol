@@ -61,32 +61,30 @@ contract STKChannel
     * @notice Function to close the payment channel. If Signature is empty/malformed it WILL still close the channel.
     * @param _nonce The nonce of the deposit. Used for avoiding replay attacks.
     * @param _amount The amount of tokens claimed to be due to the receiver.
-    * @param _signature The signed amount and nonce, It is in the form of keccak256(this,nonce,address).
+    * @param _v Cryptographic param v derived from the signature.
+    * @param _r Cryptographic param r derived from the signature.
+    * @param _s Cryptographic param s derived from the signature.
     */
     function close(
         uint _nonce,
         uint _amount,
-        bytes _signature)
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s)
         external
     {
-        channelData_.close(_nonce, _amount, _signature);
+        channelData_.close(_nonce, _amount, _v,_r,_s);
         LogChannelClosed(block.number, msg.sender, _amount);
     }
 
     /**
-    * @notice Function to close the payment channel. If Signature is empty/malformed it WILL still close the channel.
-    * @param _nonce The nonce of the deposit. Used for avoiding replay attacks.
-    * @param _amount The amount of tokens claimed to be due to the receiver.
-    * @param _signature The signed amount and nonce, It is in the form of keccak256(this,nonce,address).
+    * @notice Function to close the payment channel without a signature.
     */
-    function close(
-        uint _nonce,
-        uint _amount,
-        bytes _signature)
+    function closeWithoutSignature()
         external
     {
-        channelData_.close(_nonce, _amount, _signature);
-        LogChannelClosed(block.number, msg.sender, _amount);
+        channelData_.closeWithoutSignature();
+        LogChannelClosed(block.number, msg.sender, channelData_.amountOwed_);
     }
 
     /**
