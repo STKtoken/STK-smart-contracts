@@ -171,13 +171,21 @@ library STKChannelLibrary
         selfdestruct(address(0));
     }
 
-      function recoverAddressFromHashAndParameters(uint _nonce,uint _amount,bytes32 r,bytes32 s,uint8 v)
-          internal
-          returns (address)
-      {
-          bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-          bytes32 msgHash = keccak256(this,_nonce,_amount);
-          bytes32 prefixedHash = keccak256(prefix, msgHash);
-          return ecrecover(prefixedHash, v, r, s);
-      }
+    /**
+    * @notice After the timeout of the channel after closing has passed, can be called by either participant to withdraw funds.
+    * @param _nonce The nonce of the deposit. Used for avoiding replay attacks.
+    * @param _amount The amount of tokens claimed to be due to the receiver.
+    * @param r Cryptographic param v derived from the signature.
+    * @param s Cryptographic param r derived from the signature.
+    * @param v Cryptographic param s derived from the signature.
+    */
+    function recoverAddressFromHashAndParameters(uint _nonce,uint _amount,bytes32 r,bytes32 s,uint8 v)
+        internal
+        returns (address)
+    {
+        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
+        bytes32 msgHash = keccak256(this,_nonce,_amount);
+        bytes32 prefixedHash = keccak256(prefix, msgHash);
+        return ecrecover(prefixedHash, v, r, s);
+    }
 }
