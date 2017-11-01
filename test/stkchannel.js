@@ -10,10 +10,11 @@ contract("STKChannel",(accounts,done)=>
       return STKChannel.deployed().then(done).catch(done);
   });
 
-  it("Should have STK channel user acccount as the first account",async() => {
+  it("Should have STK channel user account as the first account",async() => {
       const channel = await STKChannel.deployed();
       const data  = await channel.channelData_.call();
       const address = data[indexes.USER_ADDRESS];
+
       assert.equal(address.toString(),accounts[0],'accounts are not equal');
   })
 
@@ -21,6 +22,7 @@ contract("STKChannel",(accounts,done)=>
       const channel = await STKChannel.deployed();
       const data  = await channel.channelData_.call();
       const address  = data[indexes.RECIPIENT_ADDRESS];
+
       assert.equal(address.toString(),accounts[1],'accounts are not equal');
   })
 
@@ -28,6 +30,7 @@ contract("STKChannel",(accounts,done)=>
       const channel = await STKChannel.deployed();
       const data  = await channel.channelData_.call();
       const timeout = data[indexes.TIMEOUT];
+
       assert.equal(timeout.valueOf(),10,'values are not equal');
   });
 
@@ -39,6 +42,7 @@ contract("STKChannel",(accounts,done)=>
       await channel.deposit(50);
       const data  = await channel.channelData_.call();
       const balance = data[indexes.TOKEN_BALANCE];
+
       assert.equal(balance.valueOf(),50,'the deposited values are not equal');
   });
 
@@ -50,6 +54,7 @@ contract("STKChannel",(accounts,done)=>
       try
       {
           await channel.deposit(50,{from:accounts[2]});
+
           assert.fail('The deposit should have thrown an exception');
       }
       catch(error)
@@ -63,6 +68,7 @@ contract("STKChannel",(accounts,done)=>
       await channel.closeWithoutSignature();
       const data  = await channel.channelData_.call();
       const block = data[indexes.CLOSED_BLOCK];
+
       assert.isAbove(block.valueOf(),0,'closed block is not greater than zero');
   });
 
