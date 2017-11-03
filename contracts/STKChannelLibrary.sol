@@ -67,7 +67,7 @@ library STKChannelLibrary
         require(_amount>0);
         require(data.token_.balanceOf(msg.sender) >= _amount);
         require(data.token_.allowance(msg.sender,this) >= _amount);
-        var success = data.token_.transferFrom(msg.sender,this,_amount);
+        bool success = data.token_.transferFrom(msg.sender,this,_amount);
         require(success);
         data.tokenBalance_ = data.tokenBalance_.plus(_amount);
     }
@@ -81,7 +81,9 @@ library STKChannelLibrary
     * @param _r Cryptographic param r derived from the signature.
     * @param _s Cryptographic param s derived from the signature.
     */
-    function close(STKChannelData storage data,uint _nonce,
+    function close(
+        STKChannelData storage data,
+        uint _nonce,
         uint _amount,
         uint8 _v,
         bytes32 _r,
@@ -123,7 +125,9 @@ library STKChannelLibrary
     * @param _r Cryptographic param r derived from the signature.
     * @param _s Cryptographic param s derived from the signature.
     */
-    function updateClosedChannel(STKChannelData storage data,uint _nonce,
+    function updateClosedChannel(
+        STKChannelData storage data,
+        uint _nonce,
         uint _amount,
         uint8 _v,
         bytes32 _r,
