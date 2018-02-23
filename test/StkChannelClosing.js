@@ -2,7 +2,7 @@ const STKChannel = artifacts.require('./STKChannel.sol')
 const STKToken  = artifacts.require('./STKToken.sol')
 const sha3 = require('solidity-sha3').default
 const ethUtil = require('ethereumjs-util')
-const assertJump = require('./helpers/assertJump');
+const assertRevert = require('./helpers/assertRevert');
 const indexes = require('./helpers/channelDataIndexes');
 const closingHelper = require('./helpers/channelClosingHelper')
 
@@ -40,7 +40,7 @@ contract("STKChannelClosing", accounts =>
       }
       catch(error)
       {
-        assertJump(error);
+        assertRevert(error);
       }
   })
 
@@ -57,7 +57,7 @@ contract("STKChannelClosing", accounts =>
       }
       catch(error)
       {
-        assertJump(error);
+        assertRevert(error);
       }
   })
 
@@ -74,7 +74,7 @@ contract("STKChannelClosing", accounts =>
       }
       catch(error)
       {
-        assertJump(error);
+        assertRevert(error);
       }
   })
 
@@ -91,7 +91,7 @@ contract("STKChannelClosing", accounts =>
       }
       catch(error)
       {
-        assertJump(error);
+        assertRevert(error);
       }
   })
 
@@ -129,7 +129,7 @@ contract("STKChannelClosing", accounts =>
       }
       catch(error)
       {
-          assertJump(error);
+          assertRevert(error);
       }
   })
 
@@ -162,7 +162,7 @@ contract("STKChannelClosing", accounts =>
      }
      catch(error)
      {
-         assertJump(error);
+         assertRevert(error);
      }
   })
 
@@ -180,7 +180,7 @@ contract("STKChannelClosing", accounts =>
       }
       catch(error)
       {
-          assertJump(error);
+          assertRevert(error);
       }
   })
 
@@ -197,7 +197,7 @@ contract("STKChannelClosing", accounts =>
       }
       catch(error)
       {
-          assertJump(error);
+          assertRevert(error);
       }
   })
 
@@ -228,7 +228,7 @@ contract("STKChannelClosing", accounts =>
       }
       catch(error)
       {
-          assertJump(error);
+          assertRevert(error);
       }
   })
 
