@@ -1,7 +1,7 @@
 var STKChannel = artifacts.require('./STKChannel.sol');
 var STKToken  = artifacts.require('./STKToken.sol');
 var sha3 = require('solidity-sha3').default;
-const assertJump = require('./helpers/assertJump');
+const assertRevert = require('./helpers/assertRevert');
 var indexes = require('./helpers/ChannelDataIndexes');
 contract("STKChannel",(accounts,done)=>
 {
@@ -39,7 +39,7 @@ contract("STKChannel",(accounts,done)=>
 
   it('Should Deposit 50 tokens to the stkchannel',async() =>
   {
-      const token = await STKToken .deployed();
+      const token = await STKToken.deployed();
       const channel = await STKChannel.deployed();
       await token.approve(channel.address,50);
       const allowance = await token.allowance(accounts[0],channel.address);
@@ -64,7 +64,7 @@ contract("STKChannel",(accounts,done)=>
       }
       catch(error)
       {
-          assertJump(error);
+          await assertRevert(error);
       }
   });
 
