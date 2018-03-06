@@ -11,8 +11,24 @@ Install project dependencies
 
 Ganache CLI v6.0.3 (ganache-core: 2.0.2)
 
+`npm install -g ganache-cli`
+
 ## Running Tests
 
 Run tests using
 
 `truffle test`
+
+## Deploy to local testnet
+
+`ganache-cli`
+
+`truffle compile`
+
+`truffle migrate`
+
+## Deploy to live testnet (ropsten)
+
+Before deploying to Ropsten, please register on Infura and replace the API key in truffle.js and create a mnemonic.js file for HDWalletProvider
+
+`truffle migrate --network ropsten`
