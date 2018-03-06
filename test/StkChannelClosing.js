@@ -16,13 +16,8 @@ contract("STKChannelClosing", accounts =>
       const channel = await STKChannel.deployed();
       await token.approve(channel.address,50);
       const allowance = await token.allowance(accounts[0],channel.address);
-
-      const cost = await  channel.deposit.estimateGas(50);
-      console.log('estimated gas cost of depositing into the channel -- this neglects cost of approving tokens for transfer: ' + cost );
-
-      await channel.deposit(50);
-      const data = await channel.channelData_.call();
-      const balance = data[indexes.TOKEN_BALANCE];
+      await token.transfer(channel.address, 50);
+      const balance = await token.balanceOf(channel.address);
 
       assert.equal(balance.valueOf(),50,'the deposited values are not equal');
   });
@@ -246,7 +241,7 @@ contract("STKChannelClosing", accounts =>
           web3.eth.sendTransaction(transaction);
       }
 
-      const depositedTokens = data[indexes.TOKEN_BALANCE];
+      const depositedTokens = await token.balanceOf(channel.address);
       const oldUserBalance = await token.balanceOf(userAddress);
       const oldStackBalance = await token.balanceOf(stackAddress);
       const amountToBeTransferred = data[indexes.AMOUNT_OWED];

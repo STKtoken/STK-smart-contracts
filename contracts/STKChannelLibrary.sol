@@ -13,7 +13,6 @@ library STKChannelLibrary
          address recipientAddress_;
          address closingAddress_;
          uint timeout_;
-         uint tokenBalance_;
          uint amountOwed_;
          uint openedBlock_;
          uint closedBlock_;
@@ -25,12 +24,6 @@ library STKChannelLibrary
     modifier channelAlreadyClosed(STKChannelData storage data)
     {
         require(data.closedBlock_ > 0);
-        _;
-    }
-
-    modifier timeoutNotOver(STKChannelData storage data)
-    {
-        require(data.closedBlock_ + data.timeout_ >= block.number);
         _;
     }
 
@@ -54,25 +47,6 @@ library STKChannelLibrary
     }
 
     /**
-    * @notice deposit _amount into the channel.
-    * @param data The channel specific data to work on.
-    * @param _amount The amount of tokens to deposit into the channel.
-    */
-    function deposit(STKChannelData storage data, uint256 _amount)
-        public
-        channelIsOpen(data)
-    {
-      // only user can deposit into account
-        require(msg.sender == data.userAddress_);
-        require(_amount>0);
-        require(data.token_.balanceOf(msg.sender) >= _amount);
-        require(data.token_.allowance(msg.sender,this) >= _amount);
-        bool success = data.token_.transferFrom(msg.sender,this,_amount);
-        require(success);
-        data.tokenBalance_ = data.tokenBalance_.plus(_amount);
-    }
-
-    /**
     * @notice Function to close the payment channel.
     * @param data The channel specific data to work on.
     * @param _nonce The nonce of the deposit. Used for avoiding replay attacks.
@@ -83,6 +57,7 @@ library STKChannelLibrary
     */
     function close(
         STKChannelData storage data,
+        address _channelAddress,
         uint _nonce,
         uint _amount,
         uint8 _v,
@@ -92,7 +67,7 @@ library STKChannelLibrary
         channelIsOpen(data)
         callerIsChannelParticipant(data)
     {
-        require(_amount <= data.tokenBalance_);
+        require(_amount <= data.token_.balanceOf(_channelAddress));
 
         address signerAddress = recoverAddressFromHashAndParameters(_nonce,_amount,_r,_s,_v);
         require((signerAddress == data.userAddress_ && data.recipientAddress_  == msg.sender) || (signerAddress == data.recipientAddress_  && data.userAddress_==msg.sender));
@@ -127,6 +102,7 @@ library STKChannelLibrary
     */
     function updateClosedChannel(
         STKChannelData storage data,
+        address _channelAddress,
         uint _nonce,
         uint _amount,
         uint8 _v,
@@ -137,7 +113,7 @@ library STKChannelLibrary
         channelAlreadyClosed(data)
     {   //closer cannot update the state of the channel after closing
         require(msg.sender != data.closingAddress_);
-        require(data.tokenBalance_ >= _amount);
+        require(data.token_.balanceOf(_channelAddress) >= _amount);
         address signerAddress = recoverAddressFromHashAndParameters(_nonce,_amount,_r,_s,_v);
         require(signerAddress == data.closingAddress_);
         //require that the nonce of this transaction be higher than the previous closing nonce
@@ -151,14 +127,14 @@ library STKChannelLibrary
     * @notice After the timeout of the channel after closing has passed, can be called by either participant to withdraw funds.
     * @param data The channel specific data to work on.
     */
-    function settle(STKChannelData storage data)
+    function settle(STKChannelData storage data, address _channelAddress)
         public
         channelAlreadyClosed(data)
         timeoutOver(data)
         callerIsChannelParticipant(data)
     {
-        require(data.tokenBalance_ >= data.amountOwed_);
-        uint returnToUserAmount = data.tokenBalance_.minus(data.amountOwed_);
+        require(data.token_.balanceOf(_channelAddress)>= data.amountOwed_);
+        uint returnToUserAmount = data.token_.balanceOf(_channelAddress).minus(data.amountOwed_);
 
         if(data.amountOwed_ > 0)
         {

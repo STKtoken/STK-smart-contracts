@@ -47,18 +47,7 @@ contract STKChannel
     }
 
     /**
-    * @notice deposit _amount into the channel.
-    * @param _amount The amount of tokens to deposit into the channel.
-    */
-    function deposit(uint256 _amount)
-        external
-    {
-        channelData_.deposit(_amount);
-        LogDeposited(msg.sender, _amount);
-    }
-
-    /**
-    * @notice Function to close the payment channel. 
+    * @notice Function to close the payment channel.
     * @param _nonce The nonce of the deposit. Used for avoiding replay attacks.
     * @param _amount The amount of tokens claimed to be due to the receiver.
     * @param _v Cryptographic param v derived from the signature.
@@ -73,7 +62,7 @@ contract STKChannel
         bytes32 _s)
         external
     {
-        channelData_.close(_nonce, _amount, _v,_r,_s);
+        channelData_.close(address(this), _nonce, _amount, _v,_r,_s);
         LogChannelClosed(block.number, msg.sender, _amount);
     }
 
@@ -103,7 +92,7 @@ contract STKChannel
         bytes32 _s)
         external
     {
-        channelData_.updateClosedChannel(_nonce, _amount, _v, _r, _s);
+        channelData_.updateClosedChannel(address(this), _nonce, _amount, _v, _r, _s);
         LogChannelContested(_amount, msg.sender);
     }
 
@@ -113,6 +102,6 @@ contract STKChannel
     function settle()
         external
     {
-        channelData_.settle();
+        channelData_.settle(address(this));
     }
 }
