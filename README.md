@@ -29,6 +29,6 @@ Run tests using
 
 ## Deploy to live testnet (ropsten)
 
-Before deploying to Ropsten, please register on Infura and replace the API key in truffle.js and create a mnemonic.js file for HDWalletProvider
+Before deploying to Ropsten, please register on Infura and replace the API key in truffle.js and replace the mnemonic phrase in mnemonic.js
 
 `truffle migrate --network ropsten`
