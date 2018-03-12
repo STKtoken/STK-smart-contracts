@@ -255,4 +255,24 @@ contract("STKChannelClosing", accounts =>
       assert.equal(parseInt(newStackBalance.valueOf()), parseInt(oldStackBalance.valueOf() + amountToBeTransferred.valueOf()), 'The stack account value should be credited');
       assert.equal(parseInt(newUserBalance.valueOf()),parseInt(oldUserBalance.valueOf()) + parseInt(depositedTokens.valueOf()) - parseInt(amountToBeTransferred.valueOf()),'The User address should get back the unused tokens');
     })
+
+    it('Should be able to reset the state of the channel after settling',async()=>
+    {
+        const channel = await STKChannel.deployed();
+        const data  = await channel.channelData_.call();
+        const closingAddress = data[indexes.CLOSING_ADDRESS];
+        const amountOwed = data[indexes.AMOUNT_OWED];
+        const openedBlock = data[indexes.OPENED_BLOCK];
+        const closedBlock = data[indexes.CLOSED_BLOCK];
+        const closedNounce = data[indexes.CLOSED_NONCE];
+
+        const currentBlockNumber = web3.eth.blockNumber;
+
+        assert.equal(closingAddress.toString(),'0x0000000000000000000000000000000000000000','closing address are not equal');
+        assert.equal(amountOwed.valueOf(),0,'The amount owned should be zero')
+        assert.equal(openedBlock.valueOf(),currentBlockNumber,'opened block are not equal');
+        assert.equal(closedBlock.valueOf(),0,'The closed block should be zero')
+        assert.equal(closedNounce.valueOf(),0,'The closed nounce should be zero')
+
+    })
 })
