@@ -147,8 +147,12 @@ library STKChannelLibrary
         }
 
         LogChannelSettled(block.number,data.amountOwed_);
-        //destroy the payment channel, if anyone accidentally sent ether to this address it gets burned here.
-        selfdestruct(address(0));
+
+        data.closingAddress_ = 0x0000000000000000000000000000000000000000;
+        data.amountOwed_ = 0;
+        data.openedBlock_ = block.number;
+        data.closedBlock_ = 0;
+        data.closedNonce_ = 0;
     }
 
     /**
