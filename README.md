@@ -21,11 +21,17 @@ Run tests using
 
 ## Deploy to local testnet
 
+This will also generate a deployedAddress.json for other application to read from
+
 `ganache-cli`
 
 `truffle compile`
 
 `truffle migrate`
+
+or run the following for new deployment
+
+`truffle migrate --reset`
 
 ## Deploy to live testnet (ropsten)
 

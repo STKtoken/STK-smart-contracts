@@ -2,6 +2,11 @@ var STKToken = artifacts.require("./STKToken.sol");
 var STKChannel = artifacts.require("./STKChannel.sol");
 var SafeMathLib = artifacts.require("./SafeMathLib.sol");
 var STKChannelLibrary = artifacts.require('./STKChannelLibrary.sol');
+
+var fs = require('fs');
+var addressFile = './deployedAddress.json';
+var file = require(addressFile);
+
 module.exports = function(deployer, network, accounts)
 {
 
@@ -16,7 +21,14 @@ module.exports = function(deployer, network, accounts)
                 {
                 return deployer.link(STKChannelLibrary,STKChannel).then(function()
                     {
-                      return deployer.deploy(STKChannel, web3.eth.accounts[1],STKToken.address,10);
+                      return deployer.deploy(STKChannel, web3.eth.accounts[1],STKToken.address,10).then(function(){
+                        file.STKTokenAddress = STKToken.address;
+                        file.STKChannelAddress = STKChannel.address;
+                        fs.writeFile(addressFile, JSON.stringify(file), function (err) {
+                          if (err) return console.log(err);
+                          console.log('writing to ' + addressFile);
+                        });
+                      })
                    });
                 });
              });
