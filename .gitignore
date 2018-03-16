@@ -1,4 +1,5 @@
 build/
 node*/
+deployedAddress.json
 .idea/
 .DS_Store
