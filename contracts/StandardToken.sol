@@ -8,22 +8,25 @@ contract StandardToken is Token {
     mapping (address => mapping (address => uint256)) allowed;
 
     function transfer(address _to, uint256 _value) public returns (bool success) {
-        if (balances[msg.sender] >= _value && _value > 0) {
-            balances[msg.sender] -= _value;
-            balances[_to] += _value;
-            Transfer(msg.sender, _to, _value);
-            return true;
-        } else { return false; }
+        require(_to != address(0));
+        require(balances[msg.sender] >= _value);
+        require(_value > 0);
+        balances[msg.sender] -= _value;
+        balances[_to] += _value;
+        Transfer(msg.sender, _to, _value);
+        return true;
     }
 
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
-        if (balances[_from] >= _value && allowed[_from][msg.sender] >= _value && _value > 0) {
-            balances[_to] += _value;
-            balances[_from] -= _value;
-            allowed[_from][msg.sender] -= _value;
-            Transfer(_from, _to, _value);
-            return true;
-        } else { return false; }
+        require(_to != address(0));
+        require(balances[_from] >= _value);
+        require(allowed[_from][msg.sender] >= _value);
+        require(_value > 0);
+        balances[_to] += _value;
+        balances[_from] -= _value;
+        allowed[_from][msg.sender] -= _value;
+        Transfer(_from, _to, _value);
+        return true;
     }
 
     function balanceOf(address _owner) public constant returns (uint256 balance) {
