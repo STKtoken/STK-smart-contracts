@@ -10,6 +10,8 @@ var file = require(addressFile);
 module.exports = function(deployer, network, accounts)
 {
 
+  const initialSupply = 500000000 * Math.pow(10, 18)
+
   if(network === "development") {
     deployer.deploy(SafeMathLib).then(function()
     {
@@ -41,7 +43,7 @@ module.exports = function(deployer, network, accounts)
           {
             return deployer.deploy(STKChannelLibrary).then(function()
               {
-              return deployer.deploy(STKToken,1000000000,'STK Token',18,'STK');
+              return deployer.deploy(STKToken,initialSupply,'STK Token',18,'STK');
                });
             });
         });
