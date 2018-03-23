@@ -33,8 +33,14 @@ or run the following for new deployment
 
 `truffle migrate --reset`
 
-## Deploy to live testnet (ropsten)
+## Deploy to live testnet (Rinkeby)
 
-Before deploying to Ropsten, please register on Infura and replace the API key in truffle.js and replace the mnemonic phrase in mnemonic.js
+Before deploying to Rinkeby, please register on Infura
 
-`truffle migrate --network ropsten`
+In your bash_profile Add INFURA_URL and MNEMONIC
+
+`vim ~/.bash_profile`
+`export MNEMONIC="<passphrase>"`
+`export INFURA_URL=https://rinkeby.infura.io/<api-key>`
+
+`truffle migrate --network rinkeby`

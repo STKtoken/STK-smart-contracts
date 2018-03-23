@@ -17,7 +17,7 @@ module.exports = function(deployer, network, accounts)
         {
           return deployer.deploy(STKChannelLibrary).then(function()
             {
-            return deployer.deploy(STKToken,1000000000,'STK Token',10,'STK').then(function()
+            return deployer.deploy(STKToken,1000000000,'STK Token',18,'STK').then(function()
                 {
                 return deployer.link(STKChannelLibrary,STKChannel).then(function()
                     {
@@ -41,13 +41,7 @@ module.exports = function(deployer, network, accounts)
           {
             return deployer.deploy(STKChannelLibrary).then(function()
               {
-              return deployer.deploy(STKToken,1000000000,'STK Token',10,'STK').then(function()
-                  {
-                  return deployer.link(STKChannelLibrary,STKChannel).then(function()
-                      {
-                        return deployer.deploy(STKChannel, '0xD0C384fBb631fbaeF8FbD04b819232Bfc2A8601B',STKToken.address,10);
-                     });
-                  });
+              return deployer.deploy(STKToken,1000000000,'STK Token',18,'STK');
                });
             });
         });

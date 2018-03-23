@@ -10,7 +10,7 @@ module.exports = {
     },
     rinkeby: {
       provider: function() {
-        return new HDWalletProvider(mnemonic.mnemonic, "https://rinkeby.infura.io/[INFURA-API-KEY]")
+        return new HDWalletProvider(process.env.MNEMONIC, process.env.INFURA_URL)
       },
       network_id: 3,
       gas: 4000000
