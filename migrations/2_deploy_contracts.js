@@ -41,7 +41,7 @@ module.exports = function(deployer, network, accounts)
           {
             return deployer.deploy(STKChannelLibrary).then(function()
               {
-              return deployer.deploy(STKToken,1000000000,'STK Token',18,'STK');
+              return deployer.deploy(STKToken,initialSupply,'STK Token',18,'STK');
                });
             });
         });
