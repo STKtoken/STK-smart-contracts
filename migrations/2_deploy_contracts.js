@@ -23,7 +23,7 @@ module.exports = function(deployer, network, accounts)
                 {
                 return deployer.link(STKChannelLibrary,STKChannel).then(function()
                     {
-                      return deployer.deploy(STKChannel, web3.eth.accounts[0],STKToken.address,10, {from: accounts[1]}).then(function(){
+                      return deployer.deploy(STKChannel, web3.eth.accounts[0], web3.eth.accounts[2], STKToken.address,10, {from: accounts[1]}).then(function(){
                         file.STKTokenAddress = STKToken.address;
                         file.STKChannelAddress = STKChannel.address;
                         fs.writeFile(addressFile, JSON.stringify(file), function (err) {

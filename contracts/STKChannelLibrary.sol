@@ -21,6 +21,7 @@ library STKChannelLibrary
     }
 
     event LogChannelSettled(uint blockNumber, uint finalBalance);
+    event CloseTest(address addr);
 
     modifier channelAlreadyClosed(STKChannelData storage data)
     {
@@ -69,7 +70,6 @@ library STKChannelLibrary
         callerIsChannelParticipant(data)
     {
         require(_amount <= data.token_.balanceOf(_channelAddress));
-
         address signerAddress = recoverAddressFromHashAndParameters(_nonce,_amount,_r,_s,_v);
         require((signerAddress == data.signerAddress_ && data.recipientAddress_  == msg.sender) || (signerAddress == data.recipientAddress_  && data.signerAddress_==msg.sender));
         require(signerAddress!=msg.sender);
@@ -112,11 +112,10 @@ library STKChannelLibrary
         public
         callerIsChannelParticipant(data)
         channelAlreadyClosed(data)
-    {   //closer cannot update the state of the channel after closing
-        require(msg.sender != data.closingAddress_);
+    {
         require(data.token_.balanceOf(_channelAddress) >= _amount);
         address signerAddress = recoverAddressFromHashAndParameters(_nonce,_amount,_r,_s,_v);
-        require(signerAddress == data.closingAddress_);
+        require(signerAddress == data.signerAddress_);
         //require that the nonce of this transaction be higher than the previous closing nonce
         require(_nonce > data.closedNonce_);
         data.closedNonce_ = _nonce;
