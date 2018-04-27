@@ -25,17 +25,20 @@ contract STKChannel
     /**
      * @dev Contract constructor
      * @param _from The user address in the contract.
+     * @param _addressOfSigner The signer address in the contract.
      * @param _addressOfToken The address when the ERC20 token is deployed.
      * @param _expiryNumberOfBlocks The time in blocks of waiting after channel closing after which it can be settled.
      */
     function STKChannel(
         address _from,
+        address _addressOfSigner,
         address _addressOfToken,
         uint _expiryNumberOfBlocks)
         public
     {
 
         channelData_.userAddress_ = _from;
+        channelData_.signerAddress_ = _addressOfSigner;
         channelData_.recipientAddress_ = msg.sender;
         channelData_.timeout_ = _expiryNumberOfBlocks;
         channelData_.token_ = STKToken(_addressOfToken);
