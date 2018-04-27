@@ -10,8 +10,6 @@ contract("STKChannelClosing", accounts =>
 {
   const userAddress = accounts[0]
   const stackAddress = accounts[1]
-  const stackPk = Buffer.from('ae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f', 'hex') 
-  const userPk = Buffer.from('c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3', 'hex')
   const nonChannelPart = Buffer.from('c88b703fb08cbea894b6aeff5a544fb92e78a18e19814cd85da83b71f772aa6c', 'hex')
   const signersPk = Buffer.from('0dbbe8e4ae425a6d2687f1a7e3ba17bc98c673636790f1b8ad91193c05875ef1', 'hex')
 
@@ -47,7 +45,7 @@ contract("STKChannelClosing", accounts =>
   {
       const nonce = 1;
       const amount = 2;
-      const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,userPk);
+      const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,signersPk);
       const channel = await STKChannel.deployed();
       try
       {
@@ -168,7 +166,7 @@ contract("STKChannelClosing", accounts =>
   {
       const nonce = 3;
       const amount = 3;
-      const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,stackPk);
+      const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,signersPk);
 
       const channel = await STKChannel.deployed();
       try
@@ -198,11 +196,11 @@ contract("STKChannelClosing", accounts =>
           assertRevert(error);
       }
   })
-//TODO
+
   it('Should be able to update the state of the channel with a higher nonce as non-closing address',async()=>
   {
-      const nonce = 3;
-      const amount = 3;
+      const nonce = 4;
+      const amount = 4;
       const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,signersPk);
       const channel = await STKChannel.deployed();
 
