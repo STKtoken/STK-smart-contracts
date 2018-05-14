@@ -100,9 +100,9 @@ contract STKChannel
     /**
     * @notice After the timeout of the channel after closing has passed, can be called by either participant to withdraw funds.
     */
-    function settle()
+    function settle(bool _returnToken)
         external
     {
-        channelData_.settle(address(this));
+        channelData_.settle(address(this), _returnToken);
     }
 }

@@ -127,7 +127,7 @@ library STKChannelLibrary
     * @notice After the timeout of the channel after closing has passed, can be called by either participant to withdraw funds.
     * @param data The channel specific data to work on.
     */
-    function settle(STKChannelData storage data, address _channelAddress)
+    function settle(STKChannelData storage data, address _channelAddress, bool _returnToken)
         public
         channelAlreadyClosed(data)
         timeoutOver(data)
@@ -141,7 +141,7 @@ library STKChannelLibrary
             require(data.token_.transfer(data.recipientAddress_ ,data.amountOwed_));
         }
 
-        if(returnToUserAmount > 0)
+        if(returnToUserAmount > 0 && _returnToken)
         {
             require(data.token_.transfer(data.userAddress_,returnToUserAmount));
         }
