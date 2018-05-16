@@ -21,7 +21,7 @@ contract STKToken is StandardToken {
     string public symbol;
     string public version = 'STK0.1';
 
-    function STKToken(
+    constructor (
         uint256 _initialAmount,
         string _tokenName,
         uint8 _decimalUnits,

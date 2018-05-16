@@ -29,7 +29,7 @@ contract STKChannel
      * @param _addressOfToken The address when the ERC20 token is deployed.
      * @param _expiryNumberOfBlocks The time in blocks of waiting after channel closing after which it can be settled.
      */
-    function STKChannel(
+    constructor (
         address _from,
         address _addressOfSigner,
         address _addressOfToken,
@@ -44,7 +44,7 @@ contract STKChannel
         channelData_.token_ = STKToken(_addressOfToken);
         channelData_.openedBlock_ = block.number;
 
-        LogChannelOpened(channelData_.userAddress_, channelData_.recipientAddress_, channelData_.openedBlock_);
+        emit LogChannelOpened(channelData_.userAddress_, channelData_.recipientAddress_, channelData_.openedBlock_);
     }
 
     /**
@@ -64,7 +64,7 @@ contract STKChannel
         external
     {
         channelData_.close(address(this), _nonce, _amount, _v,_r,_s);
-        LogChannelClosed(block.number, msg.sender, _amount);
+        emit LogChannelClosed(block.number, msg.sender, _amount);
     }
 
     /**
@@ -74,7 +74,7 @@ contract STKChannel
         external
     {
         channelData_.closeWithoutSignature();
-        LogChannelClosed(block.number, msg.sender, channelData_.amountOwed_);
+        emit LogChannelClosed(block.number, msg.sender, channelData_.amountOwed_);
     }
 
     /**
@@ -94,7 +94,7 @@ contract STKChannel
         external
     {
         channelData_.updateClosedChannel(address(this), _nonce, _amount, _v, _r, _s);
-        LogChannelContested(_amount, msg.sender);
+        emit LogChannelContested(_amount, msg.sender);
     }
 
     /**
