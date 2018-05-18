@@ -138,7 +138,12 @@ library STKChannelLibrary
         uint owedAmount = data.amountOwed_;
         data.amountOwed_ = 0;
 
-        if(data.amountOwed_ > 0)
+        data.closingAddress_ = 0x0000000000000000000000000000000000000000;
+        data.openedBlock_ = block.number;
+        data.closedBlock_ = 0;
+        data.closedNonce_ = 0;
+
+        if(owedAmount > 0)
         {
             require(data.token_.transfer(data.recipientAddress_ ,owedAmount));
         }
@@ -147,11 +152,6 @@ library STKChannelLibrary
         {
             require(data.token_.transfer(data.userAddress_,owedAmount));
         }
-
-        data.closingAddress_ = 0x0000000000000000000000000000000000000000;
-        data.openedBlock_ = block.number;
-        data.closedBlock_ = 0;
-        data.closedNonce_ = 0;
 
         emit LogChannelSettled(block.number,owedAmount);
     }

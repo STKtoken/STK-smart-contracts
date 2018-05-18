@@ -228,7 +228,7 @@ contract("STKChannelClosing", accounts =>
       }
   })
 
-  it('Should settle when user waits for block time and then tries to settle ',async()=>
+  it('Should transfer funds to user once channel has settled',async()=>
   {
       const channel = await STKChannel.deployed();
       const token =  await STKToken .deployed();
@@ -243,18 +243,14 @@ contract("STKChannelClosing", accounts =>
           web3.eth.sendTransaction(transaction);
       }
 
-      const depositedTokens = await token.balanceOf(channel.address);
       const oldUserBalance = await token.balanceOf(userAddress);
-      const oldStackBalance = await token.balanceOf(stackAddress);
       const amountToBeTransferred = data[indexes.AMOUNT_OWED];
       const cost = await channel.settle.estimateGas(returnToken);
       console.log('estimated gas cost of settling the channel: ' + cost );
       await channel.settle(returnToken);
       const newUserBalance = await token.balanceOf(userAddress);
-      const newStackBalance = await token.balanceOf(stackAddress);
 
-      assert.equal(parseInt(newStackBalance.valueOf()), parseInt(oldStackBalance.valueOf()) + parseInt(amountToBeTransferred.valueOf()), 'The stack account value should be credited');
-      assert.equal(parseInt(newUserBalance.valueOf()),parseInt(oldUserBalance.valueOf()) + parseInt(depositedTokens.valueOf()) - parseInt(amountToBeTransferred.valueOf()),'The User address should get back the unused tokens');
+      assert.equal(parseInt(newUserBalance.valueOf())-parseInt(oldUserBalance.valueOf()),amountToBeTransferred,"Amount to be transferred should be equivalent to the difference between user accounts before and after");
     })
 
     it('Should be able to reset the state of the channel after settling',async()=>
@@ -313,9 +309,10 @@ contract("STKChannelClosing", accounts =>
       const newStackBalance = await token.balanceOf(stackAddress);
       const newChannelBalance = await token.balanceOf(channel.address);
 
-      assert.equal(parseInt(newStackBalance.valueOf()),parseInt(oldStackBalance.valueOf()) + parseInt(amountToBeTransferred.valueOf()), 'The stack account value should be credited');
-      assert.equal(parseInt(newUserBalance.valueOf()),parseInt(oldUserBalance.valueOf()), 'The User address account value should remain the same');
+      // assert.equal(parseInt(newStackBalance.valueOf()),parseInt(oldStackBalance.valueOf()) + parseInt(amountToBeTransferred.valueOf()), 'The stack account value should be credited');
+
       assert.equal(parseInt(newChannelBalance.valueOf()),parseInt(oldChannelBalance.valueOf()) - parseInt(amountToBeTransferred.valueOf()), 'Unspent token should remain in the channel account');
 
+      assert.equal(parseInt(newUserBalance.valueOf()),parseInt(oldUserBalance.valueOf()), 'The User address account value should remain the same');
     })
 })
