@@ -1,6 +1,5 @@
 const STKChannel = artifacts.require('./STKChannel.sol')
 const STKToken  = artifacts.require('./STKToken.sol')
-const sha3 = require('solidity-sha3').default
 const ethUtil = require('ethereumjs-util')
 const assertRevert = require('./helpers/assertRevert');
 const indexes = require('./helpers/channelDataIndexes');
@@ -242,15 +241,24 @@ contract("STKChannelClosing", accounts =>
           var transaction = {from:web3.eth.accounts[0],to:web3.eth.accounts[1],gasPrice:1000000000,value:100};
           web3.eth.sendTransaction(transaction);
       }
-
+      const depositedTokens = await token.balanceOf(channel.address);
+      const oldStackBalance = await token.balanceOf(stackAddress);
       const oldUserBalance = await token.balanceOf(userAddress);
       const amountToBeTransferred = data[indexes.AMOUNT_OWED];
       const cost = await channel.settle.estimateGas(returnToken);
       console.log('estimated gas cost of settling the channel: ' + cost );
       await channel.settle(returnToken);
       const newUserBalance = await token.balanceOf(userAddress);
+      const newStackBalance = await token.balanceOf(stackAddress);
 
-      assert.equal(parseInt(newUserBalance.valueOf())-parseInt(oldUserBalance.valueOf()),amountToBeTransferred,"Amount to be transferred should be equivalent to the difference between user accounts before and after");
+      console.log("new user bal: " + parseInt(newUserBalance.valueOf()));
+      console.log("old user bal: " + parseInt(oldUserBalance.valueOf()))
+      console.log("amount transferred: " + parseInt(amountToBeTransferred.valueOf()));
+      console.log("deposited tokens: " + parseInt(depositedTokens.valueOf()));
+
+      assert.equal(parseInt(newStackBalance.valueOf()), parseInt(oldStackBalance.valueOf()) + parseInt(amountToBeTransferred.valueOf()), 'The stack account value should be credited');
+
+      assert.equal(parseInt(newUserBalance.valueOf()),parseInt(oldUserBalance.valueOf()) + parseInt(depositedTokens.valueOf()) - parseInt(amountToBeTransferred.valueOf()),'The User address should get back the unused tokens');
     })
 
     it('Should be able to reset the state of the channel after settling',async()=>

@@ -150,7 +150,7 @@ library STKChannelLibrary
 
         if(returnToUserAmount > 0 && _returnToken)
         {
-            require(data.token_.transfer(data.userAddress_,owedAmount));
+            require(data.token_.transfer(data.userAddress_,returnToUserAmount));
         }
 
         emit LogChannelSettled(block.number,owedAmount);
