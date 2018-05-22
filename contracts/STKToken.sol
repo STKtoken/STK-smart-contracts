@@ -11,7 +11,7 @@ Machine-based, rapid creation of many tokens would not necessarily need these ex
 
 .*/
 
-pragma solidity ^0.4.15;
+pragma solidity ^0.4.23;
 import "./StandardToken.sol";
 
 contract STKToken is StandardToken {
@@ -21,7 +21,7 @@ contract STKToken is StandardToken {
     string public symbol;
     string public version = 'STK0.1';
 
-    function STKToken(
+    constructor (
         uint256 _initialAmount,
         string _tokenName,
         uint8 _decimalUnits,

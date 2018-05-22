@@ -1,6 +1,5 @@
 const STKChannel = artifacts.require('./STKChannel.sol')
 const STKToken  = artifacts.require('./STKToken.sol')
-const sha3 = require('solidity-sha3').default
 const ethUtil = require('ethereumjs-util')
 const assertRevert = require('./helpers/assertRevert');
 const indexes = require('./helpers/channelDataIndexes');
@@ -228,7 +227,7 @@ contract("STKChannelClosing", accounts =>
       }
   })
 
-  it('Should settle when user waits for block time and then tries to settle ',async()=>
+  it('Should transfer funds to user once channel has settled',async()=>
   {
       const channel = await STKChannel.deployed();
       const token =  await STKToken .deployed();
@@ -242,10 +241,9 @@ contract("STKChannelClosing", accounts =>
           var transaction = {from:web3.eth.accounts[0],to:web3.eth.accounts[1],gasPrice:1000000000,value:100};
           web3.eth.sendTransaction(transaction);
       }
-
       const depositedTokens = await token.balanceOf(channel.address);
-      const oldUserBalance = await token.balanceOf(userAddress);
       const oldStackBalance = await token.balanceOf(stackAddress);
+      const oldUserBalance = await token.balanceOf(userAddress);
       const amountToBeTransferred = data[indexes.AMOUNT_OWED];
       const cost = await channel.settle.estimateGas(returnToken);
       console.log('estimated gas cost of settling the channel: ' + cost );
@@ -254,6 +252,7 @@ contract("STKChannelClosing", accounts =>
       const newStackBalance = await token.balanceOf(stackAddress);
 
       assert.equal(parseInt(newStackBalance.valueOf()), parseInt(oldStackBalance.valueOf()) + parseInt(amountToBeTransferred.valueOf()), 'The stack account value should be credited');
+
       assert.equal(parseInt(newUserBalance.valueOf()),parseInt(oldUserBalance.valueOf()) + parseInt(depositedTokens.valueOf()) - parseInt(amountToBeTransferred.valueOf()),'The User address should get back the unused tokens');
     })
 
@@ -314,8 +313,9 @@ contract("STKChannelClosing", accounts =>
       const newChannelBalance = await token.balanceOf(channel.address);
 
       assert.equal(parseInt(newStackBalance.valueOf()),parseInt(oldStackBalance.valueOf()) + parseInt(amountToBeTransferred.valueOf()), 'The stack account value should be credited');
-      assert.equal(parseInt(newUserBalance.valueOf()),parseInt(oldUserBalance.valueOf()), 'The User address account value should remain the same');
+
       assert.equal(parseInt(newChannelBalance.valueOf()),parseInt(oldChannelBalance.valueOf()) - parseInt(amountToBeTransferred.valueOf()), 'Unspent token should remain in the channel account');
 
+      assert.equal(parseInt(newUserBalance.valueOf()),parseInt(oldUserBalance.valueOf()), 'The User address account value should remain the same');
     })
 })

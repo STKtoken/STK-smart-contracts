@@ -9,6 +9,10 @@ Install project dependencies
 
 ## Local Development with Ganache CLI/TestRPC
 
+Truffle v4.1.8 (core: 4.1.8)
+
+Solidity v0.4.23 (solc-js) 
+
 Ganache CLI v6.0.3 (ganache-core: 2.0.2)
 
 `npm install -g ganache-cli`

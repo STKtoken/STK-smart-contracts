@@ -1,4 +1,4 @@
-pragma solidity ^0.4.15;
+pragma solidity ^0.4.23;
 
 import "./STKToken.sol";
 import "./SafeMathLib.sol";
@@ -135,10 +135,17 @@ library STKChannelLibrary
     {
         require(data.token_.balanceOf(_channelAddress)>= data.amountOwed_);
         uint returnToUserAmount = data.token_.balanceOf(_channelAddress).minus(data.amountOwed_);
+        uint owedAmount = data.amountOwed_;
+        data.amountOwed_ = 0;
 
-        if(data.amountOwed_ > 0)
+        data.closingAddress_ = 0x0000000000000000000000000000000000000000;
+        data.openedBlock_ = block.number;
+        data.closedBlock_ = 0;
+        data.closedNonce_ = 0;
+
+        if(owedAmount > 0)
         {
-            require(data.token_.transfer(data.recipientAddress_ ,data.amountOwed_));
+            require(data.token_.transfer(data.recipientAddress_ ,owedAmount));
         }
 
         if(returnToUserAmount > 0 && _returnToken)
@@ -146,13 +153,7 @@ library STKChannelLibrary
             require(data.token_.transfer(data.userAddress_,returnToUserAmount));
         }
 
-        LogChannelSettled(block.number,data.amountOwed_);
-
-        data.closingAddress_ = 0x0000000000000000000000000000000000000000;
-        data.amountOwed_ = 0;
-        data.openedBlock_ = block.number;
-        data.closedBlock_ = 0;
-        data.closedNonce_ = 0;
+        emit LogChannelSettled(block.number,owedAmount);
     }
 
     /**
@@ -164,7 +165,7 @@ library STKChannelLibrary
     * @param v Cryptographic param s derived from the signature.
     */
     function recoverAddressFromHashAndParameters(uint _nonce,uint _amount,bytes32 r,bytes32 s,uint8 v)
-        internal
+        internal view
         returns (address)
     {
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
