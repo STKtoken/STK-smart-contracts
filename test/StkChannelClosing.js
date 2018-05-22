@@ -251,11 +251,6 @@ contract("STKChannelClosing", accounts =>
       const newUserBalance = await token.balanceOf(userAddress);
       const newStackBalance = await token.balanceOf(stackAddress);
 
-      console.log("new user bal: " + parseInt(newUserBalance.valueOf()));
-      console.log("old user bal: " + parseInt(oldUserBalance.valueOf()))
-      console.log("amount transferred: " + parseInt(amountToBeTransferred.valueOf()));
-      console.log("deposited tokens: " + parseInt(depositedTokens.valueOf()));
-
       assert.equal(parseInt(newStackBalance.valueOf()), parseInt(oldStackBalance.valueOf()) + parseInt(amountToBeTransferred.valueOf()), 'The stack account value should be credited');
 
       assert.equal(parseInt(newUserBalance.valueOf()),parseInt(oldUserBalance.valueOf()) + parseInt(depositedTokens.valueOf()) - parseInt(amountToBeTransferred.valueOf()),'The User address should get back the unused tokens');
