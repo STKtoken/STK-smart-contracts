@@ -1,4 +1,3 @@
-build/
 node*/
 deployedAddress.json
 .idea/
