@@ -25,18 +25,14 @@ By default, the repo assumes that the third address is the Signer's address. Thi
 To install, you can download the appropriate installation located here: http://truffleframework.com/ganache/. 
 
 Should you use the Ganache UI Client, ensure you are using the private key of the third address from the top. You can access this value by clicking the button highlighted in red. 
-![Ganache](./images/1_signerAddress.png)
 
-This screen will show up, and you will see the private key associated with the address. 
-
-![Ganache-cli](./images/2_privateKeyOfSigner.png)
+![Ganache](./images/ganache.png)
 
 ### Ganache Command Line Interface 
 
 To install, you can use `npm install -g ganache-cli`. 
 
-Should you use `ganache-cli`, ensure you are using the 3rd private key as shown below. 
-![Ganache-cli](./images/ganache-cli.png)
+Use the third private key address in the CLI. 
 
 ## Running Tests
 
