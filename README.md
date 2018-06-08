@@ -27,6 +27,10 @@ To install, you can download the appropriate installation located here: http://t
 Should you use the Ganache UI Client, ensure you are using the private key of the third address from the top. You can access this value by clicking the button highlighted in red. 
 ![Ganache](./images/1_signerAddress.png)
 
+This screen will show up, and you will see the private key associated with the address. 
+
+![Ganache-cli](./images/2_privateKeyOfSigner.png)
+
 ### Ganache Command Line Interface 
 
 To install, you can use `npm install -g ganache-cli`. 
